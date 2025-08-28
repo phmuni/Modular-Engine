@@ -4,12 +4,10 @@
 #include <array>
 #include <filesystem>
 #include <glad/glad.h>
-#include <iostream> // IWYU pragma: keep
 #include <memory>
 #include <model/material.h>
 #include <stb_image/stb_image.h>
 #include <string>
-#include <vector> // IWYU pragma: keep
 
 class MaterialLoader {
 public:

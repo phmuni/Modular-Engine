@@ -1,36 +1,29 @@
 #pragma once
 
-#include "component/lightComponent.h" // IWYU pragma: keep
-#include "component/modelComponent.h" // IWYU pragma: keep
 #include "core/renderer.h"
 #include "ecs/componentManager.h"
 #include "ecs/entityManager.h"
 #include "ecs/systemManager.h"
-#include "manager/cameraManager.h"
-#include "manager/shaderManager.h"
-#include "system/cameraSystem.h"    // IWYU pragma: keep
-#include "system/lightSystem.h"     // IWYU pragma: keep
-#include "system/transformSystem.h" // IWYU pragma: keep
 
 #include <vector>
 
 class RenderSystem {
 public:
-  struct RenderEntry {
-    explicit RenderEntry(Entity entity) : entity(entity) {}
+  struct RenderQueue {
+    RenderQueue(Entity entity) : entity(entity) {}
     Entity entity;
   };
 
   void addRenderable(Entity entity);
+  void removeRenderable(Entity entity);
 
-  void renderCall(ShaderManager &shaderManager, SystemManager &systemManager, EntityManager &entityManager,
-                  ComponentManager &componentManager, ActiveCameraManager &cameraManager);
+  void renderCall(SystemManager &systemManager, EntityManager &entityManager, ComponentManager &componentManager);
 
   Renderer &getRenderer();
-  const std::vector<RenderEntry> &getRenderQueue() const;
+  const std::vector<RenderQueue> &getRenderQueue() const;
 
 private:
-  std::vector<RenderEntry> m_entries;
+  std::vector<RenderQueue> m_entries;
   Renderer m_renderer;
 
   void setupLights();

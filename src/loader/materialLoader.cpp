@@ -1,5 +1,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "loader/materialLoader.h"
+#include <iostream>
+#include <vector>
 
 static const std::vector<std::string> kSupportedExtensions = {".png", ".jpg", ".jpeg", ".bmp", ".tga"};
 

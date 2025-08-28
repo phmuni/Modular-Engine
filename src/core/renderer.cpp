@@ -2,7 +2,7 @@
 
 void Renderer::initialize(SDL_Window *window) {
   m_window = window;
-  initShadowMapping(); // ✅ mover pra cá pode ser melhor
+  initShadowMapping();
 }
 
 void Renderer::beginFrame() const { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
@@ -55,3 +55,8 @@ void Renderer::initShadowMapping() {
 GLuint Renderer::getDepthMap() const { return depthMap; }
 
 GLuint Renderer::getDepthMapFBO() const { return depthMapFBO; }
+
+void Renderer::setViewportSize(int width, int height) {
+  screenWidth = width;
+  screenHeight = height;
+}

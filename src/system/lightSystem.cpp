@@ -1,7 +1,13 @@
 #include "system/lightSystem.h"
+#include "component/lightComponent.h"
+#include <algorithm>
 
 void LightSystem::addLight(Entity entity) { m_lights.emplace_back(entity); }
 
+void LightSystem::removeLight(Entity entity) {
+  auto it = std::remove(m_lights.begin(), m_lights.end(), entity);
+  m_lights.erase(it, m_lights.end());
+}
 const std::vector<Entity> &LightSystem::getLights() const { return m_lights; }
 
 void LightSystem::uploadLightsToShader(Shader &shader, ComponentManager &componentManager) {

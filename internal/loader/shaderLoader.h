@@ -4,12 +4,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
-// Native headers
-#include <fstream>  // IWYU pragma: keep
-#include <iostream> // IWYU pragma: keep
-#include <sstream>  // IWYU pragma: keep
-#include <vector>   // IWYU pragma: keep
+#include <string>
 
 class Shader {
 private:

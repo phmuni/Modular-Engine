@@ -1,4 +1,8 @@
 #include "loader/shaderLoader.h"
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
 Shader::Shader(const char *vertexShaderFile, const char *fragmentShaderFile) : shaderID(0) {
   // Compile and link shaders
@@ -10,7 +14,6 @@ GLuint Shader::createShaderProgram(const char *vertexShaderFile, const char *fra
   GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentShaderFile);
 
   if (vertexShader == 0 || fragmentShader == 0) {
-    std::cerr << "Failed to compile shaders!" << std::endl;
     return 0;
   }
 

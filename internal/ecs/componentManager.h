@@ -34,6 +34,18 @@ public:
     return it->second.find(entity) != it->second.end();
   }
 
+  template <typename T> Entity entityWithComponent() {
+    auto it = storage.find(std::type_index(typeid(T)));
+    if (it == storage.end())
+      return -1;
+
+    for (const auto &[entity, _] : it->second) {
+      return entity;
+    }
+
+    return -1;
+  }
+
   // Removes all components from the entity (of all types)
   void removeAll(Entity entity) {
     for (auto &[_, map] : storage) {

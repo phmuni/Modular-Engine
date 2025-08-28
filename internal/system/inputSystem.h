@@ -1,6 +1,9 @@
 #pragma once
 
+#include "SDL3/SDL_scancode.h"
+#include "system/windowSystem.h"
 #include <SDL3/SDL.h>
+#include <core/renderer.h>
 #include <unordered_map>
 
 enum class Action { MoveForward, MoveBackward, MoveLeft, MoveRight, MoveUp, MoveDown, MoveMouse };
@@ -10,7 +13,7 @@ private:
   float mouseXOffset = 0.0f;
   float mouseYOffset = 0.0f;
   bool quitRequested = false;
-  bool mouseControlEnabled = true;
+  bool controlEnabled = true;
   bool toggleKeyLastState = false;
 
   bool keys[SDL_SCANCODE_COUNT]{false};
@@ -22,7 +25,7 @@ private:
 public:
   InputSystem();
 
-  bool update(bool *running);
+  bool update(bool *running, WindowSystem &windowSystem, Renderer &renderer);
   bool isActionPressed(Action action) const;
 
   void setKeyBind(Action action, SDL_Scancode keyCode);
@@ -30,7 +33,7 @@ public:
   // Getters
   float getMouseXOffset() const;
   float getMouseYOffset() const;
-  bool getMouseMove() const;
+  bool getMove() const;
   bool isQuitRequested() const;
   bool isKeyPressed(SDL_Scancode key) const;
 

@@ -1,5 +1,5 @@
 #include "system/inputSystem.h"
-#include "SDL3/SDL_scancode.h"
+#include "imgui/imgui_impl_sdl3.h"
 
 InputSystem::InputSystem() { setDefaultKeyBinds(); }
 
@@ -9,7 +9,7 @@ void InputSystem::setDefaultKeyBinds() {
               {Action::MoveUp, SDL_SCANCODE_SPACE},  {Action::MoveDown, SDL_SCANCODE_LSHIFT}};
 }
 
-bool InputSystem::update(bool *running) {
+bool InputSystem::update(bool *running, WindowSystem &windowSystem, Renderer &renderer) {
   SDL_Event event;
 
   // Reset offset
@@ -17,33 +17,43 @@ bool InputSystem::update(bool *running) {
   mouseYOffset = 0.0f;
 
   while (SDL_PollEvent(&event)) {
+    ImGui_ImplSDL3_ProcessEvent(&event);
+
     switch (event.type) {
     case SDL_EVENT_QUIT:
       *running = false;
       break;
+
     case SDL_EVENT_KEY_DOWN:
       keys[event.key.scancode] = true;
       break;
+
     case SDL_EVENT_KEY_UP:
       keys[event.key.scancode] = false;
       break;
+
     case SDL_EVENT_MOUSE_MOTION:
       mouseXOffset += event.motion.xrel;
       mouseYOffset += event.motion.yrel;
       break;
+
+    case SDL_EVENT_WINDOW_RESIZED:
+      windowSystem.onResize(event.window.data1, event.window.data2, renderer);
+      renderer.setViewportSize(event.window.data1, event.window.data2);
+      break;
+
     default:
       break;
     }
   }
 
+  // Toggle para ativar/desativar controle do mouse (ex: para UI ou câmera)
   bool togglePressed = isKeyPressed(SDL_SCANCODE_RALT);
 
   if (togglePressed && !toggleKeyLastState) {
-    // Mudança de estado: tecla foi pressionada agora
-    mouseControlEnabled = !mouseControlEnabled;
+    controlEnabled = !controlEnabled;
   }
 
-  // Atualiza o estado da tecla para o próximo frame
   toggleKeyLastState = togglePressed;
 
   return !quitRequested;
@@ -65,7 +75,7 @@ void InputSystem::setKeyBind(Action action, SDL_Scancode keyCode) { keyBinds[act
 float InputSystem::getMouseXOffset() const { return mouseXOffset; }
 
 float InputSystem::getMouseYOffset() const { return mouseYOffset; }
-bool InputSystem::getMouseMove() const { return mouseControlEnabled; }
+bool InputSystem::getMove() const { return controlEnabled; }
 
 bool InputSystem::isQuitRequested() const { return quitRequested; }
 

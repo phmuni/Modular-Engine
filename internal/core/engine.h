@@ -8,40 +8,21 @@
 
 // Internal Includes
 
-#include "loader/materialLoader.h" // IWYU pragma: keep
-#include "loader/meshLoader.h"     // IWYU pragma: keep
-
-#include "manager/cameraManager.h" // IWYU pragma: keep
-#include "manager/shaderManager.h"
+#include "component/lightComponent.h"
 
 // ECS & Systems
 #include "ecs/componentManager.h"
 #include "ecs/entityManager.h"
 #include "ecs/systemManager.h"
 
-#include "system/cameraSystem.h"    // IWYU pragma: keep
-#include "system/inputSystem.h"     // IWYU pragma: keep
-#include "system/lightSystem.h"     // IWYU pragma: keep
-#include "system/renderSystem.h"    // IWYU pragma: keep
-#include "system/timeSystem.h"      // IWYU pragma: keep
-#include "system/transformSystem.h" // IWYU pragma: keep
-#include "system/uiSystem.h"        // IWYU pragma: keep
-
-#include "component/modelComponent.h" // IWYU pragma: keep
-#include "manager/windowManager.h"
-
 class Engine {
 private:
-  float m_screenWidth;
-  float m_screenHeight;
+  float m_defaultScreenWidth;
+  float m_defaultScreenHeight;
 
   EntityManager entityManager;
   ComponentManager componentManager;
   SystemManager systemManager;
-
-  ShaderManager shaderManager;
-  WindowManager windowManager;
-  ActiveCameraManager cameraManager;
 
   void update(bool &running);
   void render();
@@ -50,7 +31,7 @@ private:
   bool loadResources();
 
 public:
-  Engine() : m_screenWidth(1280.0f), m_screenHeight(720.0f) {}
+  Engine() : m_defaultScreenWidth(1280.0f), m_defaultScreenHeight(720.0f) {}
   ~Engine();
 
   bool initialize();
@@ -59,9 +40,9 @@ public:
 
   void createCamera(glm::vec3 position, float yaw = 0.0f, float pitch = 0.0f, float fov = 90.0f);
 
-  void createEntityWithModel(const std::string name, const std::string &modelPath, const std::string &texturePath,
+  void createEntityWithModel(const std::string &name, const std::string &modelPath, const std::string &texturePath,
                              glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
 
-  void createEntityWithLight(glm::vec3 position, glm::vec3 direction, glm::vec3 color, LightType type, float intensity,
-                             float cutOff, float outerCutOff);
+  void createEntityWithLight(const std::string &name, glm::vec3 position, glm::vec3 direction, glm::vec3 color,
+                             LightType type, float intensity, float cutOff, float outerCutOff);
 };

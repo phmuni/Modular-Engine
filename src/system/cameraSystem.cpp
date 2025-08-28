@@ -1,20 +1,24 @@
 #include "system/cameraSystem.h"
-#include "manager/windowManager.h"
+#include "component/cameraComponent.h"
 #include "system/inputSystem.h"
+#include "system/windowSystem.h"
 
-void CameraSystem::update(Entity entity, float deltaTime, SystemManager &systemManager, WindowManager &windowManager) {
+void CameraSystem::update(float deltaTime, SystemManager &systemManager) {
+  Entity entity = getActiveCamera();
   if (!componentManager.has<CameraComponent>(entity))
     return;
 
   auto &cam = componentManager.get<CameraComponent>(entity);
   auto &inputSystem = systemManager.getSystem<InputSystem>();
-  if (inputSystem.getMouseMove()) {
+  auto &windowSystem = systemManager.getSystem<WindowSystem>();
+  if (inputSystem.getMove()) {
     rotateCamera(cam);
-    windowManager.setCursor(true);
+    moveCamera(cam, deltaTime);
+    windowSystem.setCursor(true);
   } else {
-    windowManager.setCursor(false);
+    windowSystem.setCursor(false);
   }
-  moveCamera(cam, deltaTime);
+
   updateFront(cam);
 }
 
@@ -76,3 +80,7 @@ void CameraSystem::moveCamera(CameraComponent &cam, float deltaTime) {
     cam.position.y -= velocity;
   }
 }
+
+Entity CameraSystem::getActiveCamera() const { return activeCamera; }
+
+void CameraSystem::setActiveCamera(Entity newCamera) { activeCamera = newCamera; }

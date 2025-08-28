@@ -1,8 +1,15 @@
 #include "core/engine.h"
-#include "component/nameComponent.h"
+
 #include "system/cameraSystem.h"
 #include "system/inputSystem.h"
+#include "system/lightSystem.h"
+#include "system/renderSystem.h"
+#include "system/sceneSystem.h"
+#include "system/shaderSystem.h"
+#include "system/timeSystem.h"
+#include "system/transformSystem.h"
 #include "system/uiSystem.h"
+#include "system/windowSystem.h"
 
 // ================================
 //  Destructor and Initialization
@@ -10,10 +17,6 @@
 Engine::~Engine() { SDL_Quit(); }
 
 bool Engine::initialize() {
-  if (!windowManager.initialize(m_screenWidth, m_screenHeight)) {
-    SDL_Log("Failed to initialize window and context.");
-    return false;
-  }
 
   registerSystems();
 
@@ -26,17 +29,22 @@ bool Engine::initialize() {
 }
 
 void Engine::registerSystems() {
+  systemManager.registerSystem<WindowSystem>(m_defaultScreenWidth, m_defaultScreenHeight);
   systemManager.registerSystem<RenderSystem>();
   systemManager.registerSystem<TransformSystem>();
   systemManager.registerSystem<InputSystem>();
   systemManager.registerSystem<LightSystem>();
   systemManager.registerSystem<TimeSystem>();
+  systemManager.registerSystem<ShaderSystem>();
+  systemManager.registerSystem<SceneSystem>(entityManager, componentManager, systemManager);
   systemManager.registerSystem<CameraSystem>(componentManager, systemManager.getSystem<InputSystem>());
-  systemManager.registerSystem<UISystem>(windowManager.getWindow(), windowManager.getContext());
+  systemManager.registerSystem<UISystem>(systemManager.getSystem<WindowSystem>().getWindow(),
+                                         systemManager.getSystem<WindowSystem>().getContext());
 }
 
 bool Engine::loadShaderOrLog(const std::string &name, const std::string &vertexPath, const std::string &fragmentPath) {
-  if (!shaderManager.loadShader(name.c_str(), vertexPath.c_str(), fragmentPath.c_str())) {
+  auto &shaderSystem = systemManager.getSystem<ShaderSystem>();
+  if (!shaderSystem.loadShader(name.c_str(), vertexPath.c_str(), fragmentPath.c_str())) {
     SDL_Log("Failed to load shader '%s'!", name.c_str());
     return false;
   }
@@ -45,7 +53,8 @@ bool Engine::loadShaderOrLog(const std::string &name, const std::string &vertexP
 
 bool Engine::loadResources() {
   auto &renderer = systemManager.getSystem<RenderSystem>().getRenderer();
-  renderer.initialize(windowManager.getWindow());
+  auto &windowSystem = systemManager.getSystem<WindowSystem>();
+  renderer.initialize(windowSystem.getWindow());
 
   return loadShaderOrLog("base", "../assets/shaders/vertexShader.glsl", "../assets/shaders/fragmentShader.glsl") &&
          loadShaderOrLog("shadow", "../assets/shaders/vertexShadowShader.glsl",
@@ -70,27 +79,29 @@ void Engine::mainLoop(bool &running) {
 void Engine::update(bool &running) {
   auto &input = systemManager.getSystem<InputSystem>();
   auto &time = systemManager.getSystem<TimeSystem>();
-  auto &camera = systemManager.getSystem<CameraSystem>();
+  auto &cameraSystem = systemManager.getSystem<CameraSystem>();
+  auto &windowSystem = systemManager.getSystem<WindowSystem>();
 
-  input.update(&running);
+  input.update(&running, windowSystem, systemManager.getSystem<RenderSystem>().getRenderer());
   time.update();
-  camera.update(cameraManager.getActiveCamera(), time.getDeltaTime(), systemManager, windowManager);
+  cameraSystem.update(time.getDeltaTime(), systemManager);
 }
 
 void Engine::render() {
   auto &renderSystem = systemManager.getSystem<RenderSystem>();
+  auto &renderer = renderSystem.getRenderer();
   auto &uiSystem = systemManager.getSystem<UISystem>();
 
-  renderSystem.getRenderer().beginFrame();
+  renderer.beginFrame();
 
   uiSystem.beginFrame();
 
-  renderSystem.renderCall(shaderManager, systemManager, entityManager, componentManager, cameraManager);
+  renderSystem.renderCall(systemManager, entityManager, componentManager);
 
-  uiSystem.render(systemManager, componentManager);
+  uiSystem.render(entityManager, systemManager, componentManager);
   uiSystem.endFrame();
 
-  renderSystem.getRenderer().endFrame();
+  renderer.endFrame();
 }
 
 // ================================
@@ -98,51 +109,19 @@ void Engine::render() {
 // ================================
 
 void Engine::createCamera(glm::vec3 position, float yaw, float pitch, float fov) {
-  auto &cameraSystem = systemManager.getSystem<CameraSystem>();
-  Entity cameraEntity = entityManager.createEntity();
-
-  auto cameraComponent = std::make_shared<CameraComponent>();
-  cameraComponent->position = position;
-  cameraComponent->yaw = yaw;
-  cameraComponent->pitch = pitch;
-  cameraComponent->fov = fov;
-
-  cameraSystem.updateFront(*cameraComponent);
-
-  componentManager.add<CameraComponent>(cameraEntity, cameraComponent);
-  cameraManager.setActiveCamera(cameraEntity);
+  auto &sceneSystem = systemManager.getSystem<SceneSystem>();
+  sceneSystem.createEntityCamera(position, yaw, pitch, fov);
 }
 
-void Engine::createEntityWithModel(const std::string name, const std::string &modelPath, const std::string &texturePath,
-                                   glm::vec3 position, glm::vec3 rotation, glm::vec3 scale) {
-  Entity entity = entityManager.createEntity();
-
-  auto material = MaterialLoader::loadMaterial(texturePath, 32.0f);
-  if (!material) {
-    SDL_Log("Failed to load material from: %s", texturePath.c_str());
-    return;
-  }
-
-  auto mesh = MeshLoader::loadFromOBJ(modelPath);
-  if (!mesh) {
-    SDL_Log("Failed to load mesh from: %s", modelPath.c_str());
-    return;
-  }
-
-  componentManager.add<NameComponent>(entity, std::make_shared<NameComponent>(name));
-  componentManager.add<TransformComponent>(entity, std::make_shared<TransformComponent>(position, rotation, scale));
-  componentManager.add<ModelComponent>(entity, std::make_shared<ModelComponent>(mesh, material));
-
-  systemManager.getSystem<RenderSystem>().addRenderable(entity);
+void Engine::createEntityWithModel(const std::string &name, const std::string &modelPath,
+                                   const std::string &texturePath, glm::vec3 position, glm::vec3 rotation,
+                                   glm::vec3 scale) {
+  auto &sceneSystem = systemManager.getSystem<SceneSystem>();
+  sceneSystem.createEntityWithModel(name, modelPath, texturePath, position, rotation, scale);
 }
 
-void Engine::createEntityWithLight(glm::vec3 position, glm::vec3 direction, glm::vec3 color, LightType type,
-                                   float intensity, float cutOff, float outerCutOff) {
-  Entity entity = entityManager.createEntity();
-
-  auto light = std::make_shared<LightComponent>();
-  *light = {type, position, direction, color, intensity, 0.2f, 1.0f, 0.09f, 0.032f, cutOff, outerCutOff};
-
-  componentManager.add<LightComponent>(entity, light);
-  systemManager.getSystem<LightSystem>().addLight(entity);
+void Engine::createEntityWithLight(const std::string &name, glm::vec3 position, glm::vec3 direction, glm::vec3 color,
+                                   LightType type, float intensity, float cutOff, float outerCutOff) {
+  auto &sceneSystem = systemManager.getSystem<SceneSystem>();
+  sceneSystem.createEntityWithLight(name, position, direction, color, type, intensity, cutOff, outerCutOff);
 }

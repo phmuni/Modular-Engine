@@ -6,4 +6,4 @@ Entity EntityManager::createEntity() {
   return entity;
 }
 
-void EntityManager::destroyEntity(Entity entity) { activeEntities.erase(entity); }
+void EntityManager::deleteEntity(Entity entity) { activeEntities.erase(entity); }

@@ -1,4 +1,5 @@
 #pragma once
+#include "ecs/componentManager.h"
 #include <unordered_set>
 
 using Entity = int;
@@ -13,7 +14,7 @@ public:
   Entity createEntity();
 
   // Removes the entity from the set of active entities
-  void destroyEntity(Entity entity);
+  void deleteEntity(Entity entity);
 
   // Checks if the entity is still active
   bool isAlive(Entity entity) const { return activeEntities.count(entity) > 0; }

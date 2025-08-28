@@ -1,15 +1,29 @@
 #include "system/renderSystem.h"
+#include "component/lightComponent.h"
+#include "component/modelComponent.h"
+#include "ecs/systemManager.h"
+#include "system/cameraSystem.h"
+#include "system/lightSystem.h"
+#include "system/shaderSystem.h"
+#include "system/transformSystem.h"
+#include <algorithm>
 
 void RenderSystem::addRenderable(Entity entity) { m_entries.emplace_back(entity); }
+void RenderSystem::removeRenderable(Entity entity) {
+  m_entries.erase(std::remove_if(m_entries.begin(), m_entries.end(),
+                                 [entity](const RenderQueue &entry) { return entry.entity == entity; }),
+                  m_entries.end());
+}
 
-void RenderSystem::renderCall(ShaderManager &shaderManager, SystemManager &systemManager, EntityManager &entityManager,
-                              ComponentManager &componentManager, ActiveCameraManager &cameraManager) {
+void RenderSystem::renderCall(SystemManager &systemManager, EntityManager &entityManager,
+                              ComponentManager &componentManager) {
   auto &renderer = getRenderer();
   auto &transformSystem = systemManager.getSystem<TransformSystem>();
   auto &lightSystem = systemManager.getSystem<LightSystem>();
   auto &cameraSystem = systemManager.getSystem<CameraSystem>();
+  auto &shaderSystem = systemManager.getSystem<ShaderSystem>();
 
-  if (!cameraManager.hasActiveCamera())
+  if (cameraSystem.getActiveCamera() == -1)
     return;
 
   if (lightSystem.getLights().empty())
@@ -17,12 +31,12 @@ void RenderSystem::renderCall(ShaderManager &shaderManager, SystemManager &syste
 
   // ========== SHADOW PASS ==========
 
-  Shader &depthShader = shaderManager.getShader("shadow");
+  Shader &depthShader = shaderSystem.getShader("shadow");
 
   Entity lightEntity = lightSystem.getLights()[0];
   const auto &light = componentManager.get<LightComponent>(lightEntity);
 
-  glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 20.0f);
+  glm::mat4 lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, 1.0f, 50.0f);
   glm::mat4 lightView = glm::lookAt(light.position, light.position + light.direction, glm::vec3(0, 1, 0));
   glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
@@ -44,10 +58,10 @@ void RenderSystem::renderCall(ShaderManager &shaderManager, SystemManager &syste
 
   // ========== RENDER PASS ==========
 
-  Shader &shader = shaderManager.getShader("base");
+  Shader &shader = shaderSystem.getShader("base");
   shader.use();
 
-  Entity cameraEntity = cameraManager.getActiveCamera();
+  Entity cameraEntity = cameraSystem.getActiveCamera();
   const auto &cameraComponent = componentManager.get<CameraComponent>(cameraEntity);
 
   glm::mat4 view = cameraSystem.getViewMatrix(cameraComponent);
@@ -83,4 +97,4 @@ void RenderSystem::renderCall(ShaderManager &shaderManager, SystemManager &syste
 }
 
 Renderer &RenderSystem::getRenderer() { return m_renderer; }
-const std::vector<RenderSystem::RenderEntry> &RenderSystem::getRenderQueue() const { return m_entries; }
+const std::vector<RenderSystem::RenderQueue> &RenderSystem::getRenderQueue() const { return m_entries; }

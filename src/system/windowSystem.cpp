@@ -1,7 +1,10 @@
-#include "manager/windowManager.h"
-#include "SDL3/SDL_mouse.h"
+#include "system/windowSystem.h"
 
-bool WindowManager::initialize(float screenWidth, float screenHeight) {
+WindowSystem::WindowSystem(float screenWidth, float screenHeight) : window(nullptr), glContext(nullptr) {
+  initialize(screenWidth, screenHeight);
+};
+
+bool WindowSystem::initialize(float screenWidth, float screenHeight) {
 
   // OpenGL Initialization
   if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -35,7 +38,11 @@ bool WindowManager::initialize(float screenWidth, float screenHeight) {
   return true;
 }
 
-SDL_Window *WindowManager::getWindow() const { return window; }
-SDL_GLContext WindowManager::getContext() const { return glContext; }
+void WindowSystem::onResize(int newWidth, int newHeight, Renderer &renderer) {
+  renderer.setViewportSize(newWidth, newHeight);
+}
 
-void WindowManager::setCursor(bool boolean) { SDL_SetWindowRelativeMouseMode(window, boolean); }
+SDL_Window *WindowSystem::getWindow() const { return window; }
+SDL_GLContext WindowSystem::getContext() const { return glContext; }
+
+void WindowSystem::setCursor(bool boolean) { SDL_SetWindowRelativeMouseMode(window, boolean); }

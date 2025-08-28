@@ -10,6 +10,21 @@
 #include "model/mesh.h"
 
 class Renderer {
+private:
+  // SDL window to swap buffers
+  SDL_Window *m_window = nullptr;
+
+  // Shadow map
+  GLuint depthMap = 0;
+  GLuint depthMapFBO = 0;
+  const int shadowWidth = 2048;
+  const int shadowHeight = 2048;
+
+  int screenWidth = 1280;
+  int screenHeight = 720;
+
+  void initShadowMapping();
+
 public:
   void initialize(SDL_Window *window);
 
@@ -24,18 +39,5 @@ public:
   GLuint getDepthMap() const;
   GLuint getDepthMapFBO() const;
 
-private:
-  // SDL window to swap buffers
-  SDL_Window *m_window = nullptr;
-
-  // Shadow map
-  GLuint depthMap = 0;
-  GLuint depthMapFBO = 0;
-  const int shadowWidth = 2048;
-  const int shadowHeight = 2048;
-
-  const int screenWidth = 1280;
-  const int screenHeight = 720;
-
-  void initShadowMapping();
+  void setViewportSize(int width, int height);
 };

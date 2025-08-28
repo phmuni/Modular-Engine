@@ -1,6 +1,6 @@
 #pragma once
 
-#include "glm/glm.hpp" // IWYU pragma: keep
+#include "glm/ext/vector_float3.hpp"
 
 struct TransformComponent {
   glm::vec3 position{0.0f};
