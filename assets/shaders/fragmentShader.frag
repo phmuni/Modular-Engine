@@ -19,7 +19,7 @@ struct Light {
   float quadratic;
   float cutOff;
   float outerCutOff;
-  int type; // 0 = point, 1 = directional, 2 = spotlight
+  int type; // 0 = directional, 1 = point, 2 = spotlight
 };
 
 in vec3 FragPos;  
@@ -35,7 +35,6 @@ uniform Light lights[10];
 uniform sampler2D shadowMap;
 uniform mat4 lightSpaceMatrix;
 
-// Calcula sombra a partir da posição do fragmento no espaço da luz
 float calculateShadow(vec4 fragPosLightSpace) {
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
@@ -81,10 +80,10 @@ void main()
 
     // light direction
     vec3 lightDir;
-    if (light.type == 0 || light.type == 2) {
-      lightDir = normalize(light.position - FragPos);
-    } else { // Directional
+    if (light.type == 0) {               // Directional
       lightDir = normalize(-light.direction);
+    } else {                             // Point (1) ou Spot (2)
+      lightDir = normalize(light.position - FragPos);
     }
 
     // diffuse
@@ -98,7 +97,7 @@ void main()
 
     // attenuation
     float attenuation = 1.0;
-    if (light.type == 0 || light.type == 2) {
+    if (light.type == 1 || light.type == 2) { // Point e Spot usam atenuação
       float distance = length(light.position - FragPos);
       attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
     }
@@ -111,8 +110,8 @@ void main()
       spotlightEffect = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
     }
 
-    // Aplica sombra somente para luz direcional [0 = point, 1 = directional, 2 = spotlight]
-    float shadowFactor = (light.type == 1) ? shadow : 0.0;
+    // sombra só para luz direcional (0)
+    float shadowFactor = (light.type == 0) ? shadow : 0.0;
 
     // Resultado com sombra aplicada
     vec3 lightResult = (ambient + (1.0 - shadowFactor) * (diffuse + specularShine)) * attenuation * spotlightEffect;

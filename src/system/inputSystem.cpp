@@ -1,5 +1,7 @@
 #include "system/inputSystem.h"
 #include "imgui/imgui_impl_sdl3.h"
+#include "system/renderSystem.h"
+#include "system/windowSystem.h"
 
 InputSystem::InputSystem() { setDefaultKeyBinds(); }
 
@@ -9,8 +11,11 @@ void InputSystem::setDefaultKeyBinds() {
               {Action::MoveUp, SDL_SCANCODE_SPACE},  {Action::MoveDown, SDL_SCANCODE_LSHIFT}};
 }
 
-bool InputSystem::update(bool *running, WindowSystem &windowSystem, Renderer &renderer) {
+bool InputSystem::update(bool *running, SystemManager &systemManager) {
   SDL_Event event;
+
+  auto &windowSystem = systemManager.getSystem<WindowSystem>();
+  auto &renderer = systemManager.getSystem<RenderSystem>().getRenderer();
 
   // Reset offset
   mouseXOffset = 0.0f;

@@ -161,8 +161,8 @@ void UISystem::render(EntityManager &entityManager, SystemManager &systemManager
       ImGui::InputFloat3("Scale", scale);
 
       if (ImGui::Button("Create")) {
-        sceneSystem.createEntityWithModel(modelName, modelPath, texturePath, glm::vec3(pos[0], pos[1], pos[2]),
-                                          glm::vec3(rot[0], rot[1], rot[2]), glm::vec3(scale[0], scale[1], scale[2]));
+        sceneSystem.createEntityModel(modelName, modelPath, texturePath, glm::vec3(pos[0], pos[1], pos[2]),
+                                      glm::vec3(rot[0], rot[1], rot[2]), glm::vec3(scale[0], scale[1], scale[2]));
         formType = 0;
         ImGui::CloseCurrentPopup();
       }
@@ -191,9 +191,9 @@ void UISystem::render(EntityManager &entityManager, SystemManager &systemManager
       }
 
       if (ImGui::Button("Create")) {
-        sceneSystem.createEntityWithLight(lightName, glm::vec3(pos[0], pos[1], pos[2]),
-                                          glm::vec3(dir[0], dir[1], dir[2]), glm::vec3(color[0], color[1], color[2]),
-                                          static_cast<LightType>(type), intensity, cutOff, outerCutOff);
+        sceneSystem.createEntityLight(lightName, glm::vec3(pos[0], pos[1], pos[2]), glm::vec3(dir[0], dir[1], dir[2]),
+                                      glm::vec3(color[0], color[1], color[2]), static_cast<LightType>(type), intensity,
+                                      cutOff, outerCutOff);
         formType = 0;
         ImGui::CloseCurrentPopup();
       }

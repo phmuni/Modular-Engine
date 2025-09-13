@@ -38,11 +38,11 @@ public:
   void registerSystems();
   void run();
 
-  void createCamera(glm::vec3 position, float yaw = 0.0f, float pitch = 0.0f, float fov = 90.0f);
+  void createEntityCamera(glm::vec3 position, float yaw = 0.0f, float pitch = 0.0f, float fov = 90.0f);
 
-  void createEntityWithModel(const std::string &name, const std::string &modelPath, const std::string &texturePath,
-                             glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
+  void createEntityModel(const std::string &name, const std::string &modelPath, const std::string &texturePath,
+                         glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
 
-  void createEntityWithLight(const std::string &name, glm::vec3 position, glm::vec3 direction, glm::vec3 color,
-                             LightType type, float intensity, float cutOff, float outerCutOff);
+  void createEntityLight(const std::string &name, glm::vec3 position, glm::vec3 direction, glm::vec3 color,
+                         LightType type, float intensity, float cutOff, float outerCutOff);
 };

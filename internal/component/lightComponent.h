@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-enum class LightType { Point, Directional, Spot };
+enum class LightType { Directional, Point, Spot };
 
 struct LightComponent {
   LightType type;

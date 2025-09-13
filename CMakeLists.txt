@@ -1,36 +1,37 @@
 cmake_minimum_required(VERSION 3.10)
 
-# Nome do Projeto
+# Project name
 project(Engine)
-
-# Definir o padrão de compilação
 set(CMAKE_CXX_STANDARD 17)
 
-# Definir os diretórios de saída
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+# --- Debug ---
+set(CMAKE_BUILD_TYPE Debug)
 
-# Definir o diretório onde as bibliotecas externas estão localizadas
+# --- Directories ---
+# Output directory for binaries
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+# Directory where external libraries are located
 set(EXTERNAL_DIR "${CMAKE_SOURCE_DIR}/external")
 
-# Adicionar diretórios de include para as dependências
+# Include directories for project and external dependencies
 include_directories(
     ${CMAKE_SOURCE_DIR}/internal
     ${EXTERNAL_DIR}
 )
-
-# Encontrar todos os arquivos .cpp recursivamente dentro do diretório src
+# --- Source files ---
+# Recursively find all .cpp files in src and external folders
 file(GLOB_RECURSE SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/**/*.cpp" "${CMAKE_SOURCE_DIR}/external/**/*.cpp")
-
-# Criar o executável com os arquivos encontrados
 add_executable(engine ${SOURCE_FILES})
 
-# Linkar as bibliotecas externas manualmente
+# --- Libraries ---
+# Link external libraries manually
 target_link_libraries(engine
     ${EXTERNAL_DIR}/SDL3/lib/libSDL3.dll.a
-    # Linkar outras bibliotecas necessárias
+    # link other necessary libraries
 )
 
-# Copiar todas as DLLs das dependências para a pasta bin
+# --- Copy DLLs ---
+# Copy all DLLs from external dependencies to the bin folder after build
 file(GLOB DLL_FILES "${EXTERNAL_DIR}/*/bin/*.dll")
 foreach(DLL ${DLL_FILES})
     add_custom_command(TARGET engine POST_BUILD

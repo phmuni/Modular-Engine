@@ -39,9 +39,9 @@ void SceneSystem::createEntityCamera(glm::vec3 position, float yaw, float pitch,
   cameraSystem.setActiveCamera(newCamera);
 }
 
-void SceneSystem::createEntityWithModel(const std::string name, const std::string &modelPath,
-                                        const std::string &texturePath, glm::vec3 position, glm::vec3 rotation,
-                                        glm::vec3 scale) {
+void SceneSystem::createEntityModel(const std::string name, const std::string &modelPath,
+                                    const std::string &texturePath, glm::vec3 position, glm::vec3 rotation,
+                                    glm::vec3 scale) {
   Entity entity = entityManager.createEntity();
 
   auto material = MaterialLoader::loadMaterial(texturePath, 32.0f);
@@ -63,9 +63,8 @@ void SceneSystem::createEntityWithModel(const std::string name, const std::strin
   systemManager.getSystem<RenderSystem>().addRenderable(entity);
 }
 
-void SceneSystem::createEntityWithLight(const std::string &name, glm::vec3 position, glm::vec3 direction,
-                                        glm::vec3 color, LightType type, float intensity, float cutOff,
-                                        float outerCutOff) {
+void SceneSystem::createEntityLight(const std::string &name, glm::vec3 position, glm::vec3 direction, glm::vec3 color,
+                                    LightType type, float intensity, float cutOff, float outerCutOff) {
   Entity entity = entityManager.createEntity();
 
   auto light = std::make_shared<LightComponent>(type, position, direction, color, intensity, 0.2f, 1.0f, 0.09f, 0.032f,

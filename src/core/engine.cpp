@@ -56,9 +56,9 @@ bool Engine::loadResources() {
   auto &windowSystem = systemManager.getSystem<WindowSystem>();
   renderer.initialize(windowSystem.getWindow());
 
-  return loadShaderOrLog("base", "../assets/shaders/vertexShader.glsl", "../assets/shaders/fragmentShader.glsl") &&
-         loadShaderOrLog("shadow", "../assets/shaders/vertexShadowShader.glsl",
-                         "../assets/shaders/fragmentShadowShader.glsl");
+  return loadShaderOrLog("base", "../assets/shaders/vertexShader.vert", "../assets/shaders/fragmentShader.frag") &&
+         loadShaderOrLog("shadow", "../assets/shaders/vertexShadowShader.vert",
+                         "../assets/shaders/fragmentShadowShader.frag");
 }
 
 // ================================
@@ -77,14 +77,14 @@ void Engine::mainLoop(bool &running) {
 }
 
 void Engine::update(bool &running) {
-  auto &input = systemManager.getSystem<InputSystem>();
-  auto &time = systemManager.getSystem<TimeSystem>();
+  auto &inputSystem = systemManager.getSystem<InputSystem>();
+  auto &timeSystem = systemManager.getSystem<TimeSystem>();
   auto &cameraSystem = systemManager.getSystem<CameraSystem>();
   auto &windowSystem = systemManager.getSystem<WindowSystem>();
 
-  input.update(&running, windowSystem, systemManager.getSystem<RenderSystem>().getRenderer());
-  time.update();
-  cameraSystem.update(time.getDeltaTime(), systemManager);
+  inputSystem.update(&running, systemManager);
+  timeSystem.update();
+  cameraSystem.update(timeSystem.getDeltaTime(), systemManager);
 }
 
 void Engine::render() {
@@ -108,20 +108,19 @@ void Engine::render() {
 //  Entity Creation
 // ================================
 
-void Engine::createCamera(glm::vec3 position, float yaw, float pitch, float fov) {
+void Engine::createEntityCamera(glm::vec3 position, float yaw, float pitch, float fov) {
   auto &sceneSystem = systemManager.getSystem<SceneSystem>();
   sceneSystem.createEntityCamera(position, yaw, pitch, fov);
 }
 
-void Engine::createEntityWithModel(const std::string &name, const std::string &modelPath,
-                                   const std::string &texturePath, glm::vec3 position, glm::vec3 rotation,
-                                   glm::vec3 scale) {
+void Engine::createEntityModel(const std::string &name, const std::string &modelPath, const std::string &texturePath,
+                               glm::vec3 position, glm::vec3 rotation, glm::vec3 scale) {
   auto &sceneSystem = systemManager.getSystem<SceneSystem>();
-  sceneSystem.createEntityWithModel(name, modelPath, texturePath, position, rotation, scale);
+  sceneSystem.createEntityModel(name, modelPath, texturePath, position, rotation, scale);
 }
 
-void Engine::createEntityWithLight(const std::string &name, glm::vec3 position, glm::vec3 direction, glm::vec3 color,
-                                   LightType type, float intensity, float cutOff, float outerCutOff) {
+void Engine::createEntityLight(const std::string &name, glm::vec3 position, glm::vec3 direction, glm::vec3 color,
+                               LightType type, float intensity, float cutOff, float outerCutOff) {
   auto &sceneSystem = systemManager.getSystem<SceneSystem>();
-  sceneSystem.createEntityWithLight(name, position, direction, color, type, intensity, cutOff, outerCutOff);
+  sceneSystem.createEntityLight(name, position, direction, color, type, intensity, cutOff, outerCutOff);
 }

@@ -34,7 +34,7 @@ void createDefaultModel(const std::string &name, Engine &engine) {
   glm::vec3 rotation(0.0f);
   glm::vec3 scale(1.0f);
 
-  engine.createEntityWithModel(name, modelPath, texturePath, position, rotation, scale);
+  engine.createEntityModel(name, modelPath, texturePath, position, rotation, scale);
 }
 void createDefaultModel2(const std::string &name, Engine &engine) {
   const std::string modelPath = "../assets/models/backpack/backpack.obj";
@@ -44,7 +44,7 @@ void createDefaultModel2(const std::string &name, Engine &engine) {
   glm::vec3 rotation(0.0f);
   glm::vec3 scale(1.0f);
 
-  engine.createEntityWithModel(name, modelPath, texturePath, position, rotation, scale);
+  engine.createEntityModel(name, modelPath, texturePath, position, rotation, scale);
 }
 
 void createSpotlight(const std::string &name, Engine &engine) {
@@ -56,7 +56,7 @@ void createSpotlight(const std::string &name, Engine &engine) {
   float cutOff = glm::cos(glm::radians(15.0f));
   float outerCutOff = glm::cos(glm::radians(25.0f));
 
-  engine.createEntityWithLight(name, position, direction, color, LightType::Spot, intensity, cutOff, outerCutOff);
+  engine.createEntityLight(name, position, direction, color, LightType::Spot, intensity, cutOff, outerCutOff);
 }
 void createDirectionalLight(const std::string &name, Engine &engine) {
   glm::vec3 position(3.0f, 3.0f, 0.0f);
@@ -67,8 +67,7 @@ void createDirectionalLight(const std::string &name, Engine &engine) {
   float cutOff = 0.0f;
   float outerCutOff = 0.0f;
 
-  engine.createEntityWithLight(name, position, direction, color, LightType::Directional, intensity, cutOff,
-                               outerCutOff);
+  engine.createEntityLight(name, position, direction, color, LightType::Directional, intensity, cutOff, outerCutOff);
 }
 
 void createCamera(Engine &engine) {
@@ -78,5 +77,5 @@ void createCamera(Engine &engine) {
   float pitch = -15.0f;
   float fov = 90.0f;
 
-  engine.createCamera(position, yaw, pitch, fov);
+  engine.createEntityCamera(position, yaw, pitch, fov);
 }

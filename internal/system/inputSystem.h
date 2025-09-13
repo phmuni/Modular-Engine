@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SDL3/SDL_scancode.h"
-#include "system/windowSystem.h"
+#include "ecs/systemManager.h"
 #include <SDL3/SDL.h>
 #include <core/renderer.h>
 #include <unordered_map>
@@ -25,7 +25,7 @@ private:
 public:
   InputSystem();
 
-  bool update(bool *running, WindowSystem &windowSystem, Renderer &renderer);
+  bool update(bool *running, SystemManager &systemManager);
   bool isActionPressed(Action action) const;
 
   void setKeyBind(Action action, SDL_Scancode keyCode);
