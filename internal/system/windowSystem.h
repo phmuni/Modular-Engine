@@ -1,11 +1,12 @@
 #pragma once
 
 #include "SDL3/SDL_video.h"
+#include "ecs/systemManager.h"
 #include <SDL3/SDL.h>
 #include <core/renderer.h>
 #include <glad/glad.h>
 
-class WindowSystem {
+class WindowSystem : public BaseSystem {
 private:
   SDL_Window *window;
   SDL_GLContext glContext;

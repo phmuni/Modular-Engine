@@ -6,15 +6,20 @@
 
 using Entity = int;
 
+class BaseComponent {
+public:
+  virtual ~BaseComponent() = default;
+};
+
 class ComponentManager {
 private:
   // Stores component maps by type
-  std::unordered_map<std::type_index, std::unordered_map<Entity, std::shared_ptr<void>>> storage;
+  std::unordered_map<std::type_index, std::unordered_map<Entity, std::unique_ptr<BaseComponent>>> storage;
 
 public:
   // Adds a component of type T to the entity
-  template <typename T> void add(Entity entity, std::shared_ptr<T> component) {
-    storage[std::type_index(typeid(T))][entity] = component;
+  template <typename T> void add(Entity entity, std::unique_ptr<T> component) {
+    storage[std::type_index(typeid(T))][entity] = std::move(component);
   }
 
   // Accesses a component of type T from the entity

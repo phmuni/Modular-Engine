@@ -5,7 +5,7 @@
 
 static const std::vector<std::string> kSupportedExtensions = {".png", ".jpg", ".jpeg", ".bmp", ".tga"};
 
-std::shared_ptr<Material> MaterialLoader::loadMaterial(const std::string &textureDirectory, float shininess) {
+std::unique_ptr<Material> MaterialLoader::loadMaterial(const std::string &textureDirectory, float shininess) {
   std::filesystem::path baseDir(textureDirectory);
 
   GLuint diffuseMap = loadTextureFromFile(baseDir / "diffuse", {255, 255, 255});
@@ -13,7 +13,7 @@ std::shared_ptr<Material> MaterialLoader::loadMaterial(const std::string &textur
   GLuint normalMap = loadTextureFromFile(baseDir / "normal", {128, 128, 255});
   GLuint emissionMap = loadTextureFromFile(baseDir / "emission", {0, 0, 0});
 
-  return std::make_shared<Material>(diffuseMap, specularMap, normalMap, emissionMap, shininess);
+  return std::make_unique<Material>(diffuseMap, specularMap, normalMap, emissionMap, shininess);
 }
 
 GLuint MaterialLoader::loadTextureFromFile(const std::filesystem::path &filePath,

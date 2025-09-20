@@ -7,7 +7,7 @@
 
 #include <vector>
 
-class RenderSystem {
+class RenderSystem : public BaseSystem {
 public:
   struct RenderQueue {
     RenderQueue(Entity entity) : entity(entity) {}

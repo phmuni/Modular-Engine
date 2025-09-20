@@ -1,10 +1,11 @@
 #pragma once
 
+#include "ecs/componentManager.h"
 #include <glm/glm.hpp>
 
 enum class LightType { Directional, Point, Spot };
 
-struct LightComponent {
+struct LightComponent : public BaseComponent {
   LightType type;
 
   glm::vec3 position = glm::vec3(0.0f);               // point/spot

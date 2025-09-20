@@ -8,6 +8,7 @@
 #include "system/cameraSystem.h"
 #include "system/lightSystem.h"
 #include "system/renderSystem.h"
+#include <utility>
 
 void SceneSystem::removeEntity(Entity entity) {
   if (componentManager.has<LightComponent>(entity)) {
@@ -27,7 +28,7 @@ void SceneSystem::createEntityCamera(glm::vec3 position, float yaw, float pitch,
   auto &cameraSystem = systemManager.getSystem<CameraSystem>();
   Entity newCamera = entityManager.createEntity();
 
-  auto cameraComponent = std::make_shared<CameraComponent>();
+  auto cameraComponent = std::make_unique<CameraComponent>();
   cameraComponent->position = position;
   cameraComponent->yaw = yaw;
   cameraComponent->pitch = pitch;
@@ -35,7 +36,7 @@ void SceneSystem::createEntityCamera(glm::vec3 position, float yaw, float pitch,
 
   cameraSystem.updateFront(*cameraComponent);
 
-  componentManager.add<CameraComponent>(newCamera, cameraComponent);
+  componentManager.add<CameraComponent>(newCamera, std::move(cameraComponent));
   cameraSystem.setActiveCamera(newCamera);
 }
 
@@ -56,9 +57,9 @@ void SceneSystem::createEntityModel(const std::string name, const std::string &m
     return;
   }
 
-  componentManager.add<NameComponent>(entity, std::make_shared<NameComponent>(name));
-  componentManager.add<TransformComponent>(entity, std::make_shared<TransformComponent>(position, rotation, scale));
-  componentManager.add<ModelComponent>(entity, std::make_shared<ModelComponent>(mesh, material));
+  componentManager.add<NameComponent>(entity, std::make_unique<NameComponent>(name));
+  componentManager.add<TransformComponent>(entity, std::make_unique<TransformComponent>(position, rotation, scale));
+  componentManager.add<ModelComponent>(entity, std::make_unique<ModelComponent>(std::move(mesh), std::move(material)));
 
   systemManager.getSystem<RenderSystem>().addRenderable(entity);
 }
@@ -67,11 +68,11 @@ void SceneSystem::createEntityLight(const std::string &name, glm::vec3 position,
                                     LightType type, float intensity, float cutOff, float outerCutOff) {
   Entity entity = entityManager.createEntity();
 
-  auto light = std::make_shared<LightComponent>(type, position, direction, color, intensity, 0.2f, 1.0f, 0.09f, 0.032f,
+  auto light = std::make_unique<LightComponent>(type, position, direction, color, intensity, 0.2f, 1.0f, 0.09f, 0.032f,
                                                 cutOff, outerCutOff);
 
-  componentManager.add<NameComponent>(entity, std::make_shared<NameComponent>(name));
-  componentManager.add<LightComponent>(entity, light);
+  componentManager.add<NameComponent>(entity, std::make_unique<NameComponent>(name));
+  componentManager.add<LightComponent>(entity, std::move(light));
 
   systemManager.getSystem<LightSystem>().addLight(entity);
 }

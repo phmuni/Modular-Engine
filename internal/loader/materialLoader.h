@@ -11,7 +11,7 @@
 
 class MaterialLoader {
 public:
-  static std::shared_ptr<Material> loadMaterial(const std::string &textureDirectory, float shininess = 32.0f);
+  static std::unique_ptr<Material> loadMaterial(const std::string &textureDirectory, float shininess = 32.0f);
 
 private:
   static GLuint loadTextureFromFile(const std::filesystem::path &filePath,

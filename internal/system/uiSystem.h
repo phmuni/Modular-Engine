@@ -4,7 +4,7 @@
 #include "ecs/entityManager.h"
 #include "ecs/systemManager.h"
 
-class UISystem {
+class UISystem : public BaseSystem {
 public:
   Entity selectedEntity = -1;
 

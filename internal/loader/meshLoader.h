@@ -7,5 +7,5 @@
 
 class MeshLoader {
 public:
-  static std::shared_ptr<Mesh> loadFromOBJ(const std::string &filename);
+  static std::unique_ptr<Mesh> loadFromOBJ(const std::string &filename);
 };

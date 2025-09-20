@@ -1,10 +1,11 @@
 #pragma once
+#include "ecs/systemManager.h"
 #include "loader/shaderLoader.h"
 #include <memory>
 #include <string>
 #include <unordered_map>
 
-class ShaderSystem {
+class ShaderSystem : public BaseSystem {
 private:
   std::unordered_map<std::string, std::shared_ptr<Shader>> shaders;
 

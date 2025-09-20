@@ -1,8 +1,9 @@
 #pragma once
 
+#include "ecs/systemManager.h"
 #include <SDL3/SDL.h>
 
-class TimeSystem {
+class TimeSystem : public BaseSystem {
 private:
   float deltaTime = 0.0f;
   float lastFrameTime = 0.0f;

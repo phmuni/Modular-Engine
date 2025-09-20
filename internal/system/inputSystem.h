@@ -8,7 +8,7 @@
 
 enum class Action { MoveForward, MoveBackward, MoveLeft, MoveRight, MoveUp, MoveDown, MoveMouse };
 
-class InputSystem {
+class InputSystem : public BaseSystem {
 private:
   float mouseXOffset = 0.0f;
   float mouseYOffset = 0.0f;

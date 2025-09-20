@@ -1,10 +1,11 @@
 #pragma once
 
 #include "ecs/componentManager.h"
+#include "ecs/systemManager.h"
 #include "loader/shaderLoader.h"
 #include <vector>
 
-class LightSystem {
+class LightSystem : public BaseSystem {
 public:
   void addLight(Entity entity);
   void removeLight(Entity entity);

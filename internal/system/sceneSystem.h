@@ -7,7 +7,7 @@
 #include "glm/ext/vector_float3.hpp"
 #include <string>
 
-class SceneSystem {
+class SceneSystem : public BaseSystem {
 private:
   EntityManager &entityManager;
   ComponentManager &componentManager;

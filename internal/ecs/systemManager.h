@@ -4,10 +4,14 @@
 #include <typeindex>
 #include <unordered_map>
 
+class BaseSystem {
+public:
+  virtual ~BaseSystem() = default;
+};
 
 class SystemManager {
 private:
-  std::unordered_map<std::type_index, std::shared_ptr<void>> systems;
+  std::unordered_map<std::type_index, std::unique_ptr<BaseSystem>> systems;
 
 public:
   template <typename T, typename... Args> void registerSystem(Args &&...args);
@@ -20,25 +24,14 @@ public:
 template <typename T, typename... Args> void SystemManager::registerSystem(Args &&...args) {
   std::type_index typeId(typeid(T));
 
-  auto system = std::make_shared<T>(std::forward<Args>(args)...);
-  systems[typeId] = system;
+  auto system = std::make_unique<T>(std::forward<Args>(args)...);
+  systems[typeId] = std::move(system);
 }
 
 template <typename T> T &SystemManager::getSystem() const {
-  std::type_index typeId(typeid(T));
-  auto it = systems.find(typeId);
+  auto it = systems.find(typeid(T));
   if (it != systems.end()) {
-    return *std::static_pointer_cast<T>(it->second);
+    return *static_cast<T *>(it->second.get());
   }
-
   throw std::runtime_error("System not found");
-}
-
-template <typename T> void SystemManager::updateAll() const {
-  for (const auto &pair : systems) {
-    auto system = std::dynamic_pointer_cast<T>(pair.second);
-    if (system) {
-      system->update(); // Call the update method of the system
-    }
-  }
 }

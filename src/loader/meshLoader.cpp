@@ -1,7 +1,7 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "loader/meshLoader.h"
 
-std::shared_ptr<Mesh> MeshLoader::loadFromOBJ(const std::string &filename) {
+std::unique_ptr<Mesh> MeshLoader::loadFromOBJ(const std::string &filename) {
   tinyobj::attrib_t attrib;
   std::vector<tinyobj::shape_t> shapes;
   std::vector<tinyobj::material_t> materials;
@@ -45,7 +45,7 @@ std::shared_ptr<Mesh> MeshLoader::loadFromOBJ(const std::string &filename) {
     }
   }
 
-  auto mesh = std::make_shared<Mesh>();
+  auto mesh = std::make_unique<Mesh>();
   mesh->setVerticesIndices(vertices, indices);
   return mesh;
 }

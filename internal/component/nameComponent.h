@@ -1,8 +1,9 @@
 #pragma once
 
+#include "ecs/componentManager.h"
 #include <string>
 
-struct NameComponent {
+struct NameComponent : public BaseComponent {
   std::string name;
 
   NameComponent() = default;
