@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Project name
-project(Engine)
+project(modular-engine)
 set(CMAKE_CXX_STANDARD 17)
 
 # --- Debug ---
