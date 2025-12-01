@@ -2,7 +2,8 @@
 #include "core/engine.h"
 
 // Forward declarations
-void createDefaultModel(const std::string &name, Engine &engine, glm::vec3 position = glm::vec3(0.0f));
+void createDefaultModel(const std::string &name, Engine &engine, glm::vec3 position = glm::vec3(0.0f),
+                        glm::vec3 scale = glm::vec3(1.0f));
 void createSpotlight(const std::string &name, Engine &engine);
 void createDirectionalLight(const std::string &name, Engine &engine);
 void createCamera(Engine &engine);
@@ -18,8 +19,8 @@ int main() {
   glClearColor(EngineConfig::DEFAULT_CLEAR_COLOR_R, EngineConfig::DEFAULT_CLEAR_COLOR_G,
                EngineConfig::DEFAULT_CLEAR_COLOR_B, EngineConfig::DEFAULT_CLEAR_COLOR_A);
 
-  createDefaultModel("Backpack", engine, glm::vec3(0.0f));
-  createDefaultModel("Backpack2", engine, glm::vec3(1.0f));
+  createDefaultModel("Box 1", engine, glm::vec3(0.0f), glm::vec3(1.0f));
+  createDefaultModel("Box 2", engine, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.5f));
   createDirectionalLight("Directional 1", engine);
   createCamera(engine);
 
@@ -27,12 +28,10 @@ int main() {
   return 0;
 }
 
-void createDefaultModel(const std::string &name, Engine &engine, glm::vec3 position) {
+void createDefaultModel(const std::string &name, Engine &engine, glm::vec3 position, glm::vec3 scale) {
   glm::vec3 rotation(0.0f);
-  glm::vec3 scale(1.0f);
 
-  engine.createEntityModel(name, EngineConfig::MODEL_BACKPACK, EngineConfig::TEXTURE_BACKPACK, position, rotation,
-                           scale);
+  engine.createEntityModel(name, EngineConfig::MODEL_BOX, EngineConfig::TEXTURE_BOX, position, rotation, scale);
 }
 
 void createSpotlight(const std::string &name, Engine &engine) {
@@ -48,8 +47,8 @@ void createSpotlight(const std::string &name, Engine &engine) {
 }
 
 void createDirectionalLight(const std::string &name, Engine &engine) {
-  glm::vec3 position(3.0f, 3.0f, 0.0f);
-  glm::vec3 direction(-1.0f, -1.0f, 0.0f);
+  glm::vec3 position(2.0f, 3.0f, 2.0f);
+  glm::vec3 direction(-1.0f, -1.0f, -1.0f);
   glm::vec3 color(1.0f);
   float intensity = 1.5f;
 
