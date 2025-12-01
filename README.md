@@ -87,7 +87,7 @@ All dependencies are included in the `external/` directory. The project uses ind
 ### Generate Build Files
 
 ```bash
-cmake -S . -B build -G "Ninja"
+cmake -S . -B build
 ```
 
 ### Compile the Engine
