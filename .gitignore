@@ -1,17 +1,18 @@
-# Compilados
+# Executáveis e bibliotecas
 *.exe
-*.dll
 *.lib
 *.so
+*.dll
 !external/**/*.dll
 
 # Pastas de build
-build/
-bin/
+/build/
+/bin/
 exclude/
 .cache/
+!external/**/bin/
 
-# Arquivos temporários
+# Temporários
 *.log
 *.obj
 
