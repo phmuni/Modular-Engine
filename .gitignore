@@ -1,20 +1,25 @@
-# Executáveis e bibliotecas
+# Executables and libraries
 *.exe
 *.lib
 *.so
 *.dll
 !external/**/*.dll
 
-# Pastas de build
+# Build directories
 /build/
 /bin/
 exclude/
 .cache/
 !external/**/bin/
 
-# Temporários
+# Assets: include only box model
+assets/models/*
+!assets/models/box/
+
+# Temporary files
 *.log
 *.obj
+!assets/models/box/*.obj
 
 # IDEs
 .vscode/
