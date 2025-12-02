@@ -83,4 +83,6 @@ void CameraSystem::moveCamera(CameraComponent &cam, float deltaTime) {
 
 Entity CameraSystem::getActiveCamera() const { return activeCamera; }
 
+void CameraSystem::removeActiveCamera() { activeCamera = -1; }
+
 void CameraSystem::setActiveCamera(Entity newCamera) { activeCamera = newCamera; }

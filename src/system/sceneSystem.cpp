@@ -1,4 +1,5 @@
 #include "system/sceneSystem.h"
+#include "component/cameraComponent.h"
 #include "component/lightComponent.h"
 #include "component/modelComponent.h"
 #include "component/nameComponent.h"
@@ -11,17 +12,20 @@
 #include <utility>
 
 void SceneSystem::removeEntity(Entity entity) {
+  auto &renderSystem = systemManager.getSystem<RenderSystem>();
+  renderSystem.removeRenderable(entity);
+
   if (componentManager.has<LightComponent>(entity)) {
     auto &lightSystem = systemManager.getSystem<LightSystem>();
     lightSystem.removeLight(entity);
-    componentManager.removeAll(entity);
-    entityManager.deleteEntity(entity);
-  } else {
-    auto &renderSystem = systemManager.getSystem<RenderSystem>();
-    renderSystem.removeRenderable(entity);
-    componentManager.removeAll(entity);
-    entityManager.deleteEntity(entity);
+
+  } else if (componentManager.has<CameraComponent>(entity)) {
+    auto &cameraSystem = systemManager.getSystem<CameraSystem>();
+    cameraSystem.removeActiveCamera();
   }
+
+  componentManager.removeAll(entity);
+  entityManager.deleteEntity(entity);
 };
 
 void SceneSystem::createEntityCamera(glm::vec3 position, float yaw, float pitch, float fov) {

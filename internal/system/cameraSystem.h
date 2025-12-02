@@ -27,5 +27,6 @@ public:
   glm::mat4 getProjMatrix(const CameraComponent &cam) const;
 
   Entity getActiveCamera() const;
+  void removeActiveCamera();
   void setActiveCamera(Entity newCamera);
 };
