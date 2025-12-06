@@ -6,30 +6,28 @@
 enum class LightType { Directional, Point, Spot };
 
 struct LightComponent : public BaseComponent {
-  LightType type;
+  LightType type = LightType::Point;
 
-  glm::vec3 position = glm::vec3(0.0f);               // point/spot
-  glm::vec3 direction = glm::vec3(0.0f, -1.0f, 0.0f); // directional/spot
+  glm::vec3 position;  // used for point/spot lights
+  glm::vec3 direction; // used for directional/spot lights
 
-  glm::vec3 color = glm::vec3(1.0f);
-  float intensity = 1.0f;
-  float ambient = 0.2f;
+  glm::vec3 color;
+  float intensity;
+  float ambient;
 
-  // Attenuation (point and spot)
-  float constant = 1.0f;
-  float linear = 0.09f;
-  float quadratic = 0.032f;
+  // Attenuation (point/spot lights)
+  float constant;
+  float linear;
+  float quadratic;
 
-  // Spotlights: cutoff angles pre-converted to cosine values (pre-computed dot products)
-  // cutOff = 12.5°, outerCutOff = 17.5° stored as cos() for efficient fragment shader comparison
-  float cutOff = glm::cos(glm::radians(12.5f));
-  float outerCutOff = glm::cos(glm::radians(17.5f));
+  // Spotlight cutoff angles (stored as cosine values)
+  float cutOff;
+  float outerCutOff;
 
-  LightComponent(LightType type, const glm::vec3 &position = glm::vec3(0.0f),
-                 const glm::vec3 &direction = glm::vec3(0.0f, -1.0f, 0.0f), const glm::vec3 &color = glm::vec3(1.0f),
-                 float intensity = 1.0f, float ambient = 0.2f, float constant = 1.0f, float linear = 0.09f,
-                 float quadratic = 0.032f, float cutOff = glm::cos(glm::radians(12.5f)),
-                 float outerCutOff = glm::cos(glm::radians(17.5f)))
-      : type(type), position(position), direction(direction), color(color), intensity(intensity), ambient(ambient),
-        constant(constant), linear(linear), quadratic(quadratic), cutOff(cutOff), outerCutOff(outerCutOff) {}
+  LightComponent(LightType tp, const glm::vec3 &pos = glm::vec3(0.0f),
+                 const glm::vec3 &dir = glm::vec3(0.0f, -1.0f, 0.0f), const glm::vec3 &clr = glm::vec3(1.0f),
+                 float in = 1.0f, float amb = 0.2f, float cnst = 1.0f, float lin = 0.09f, float quad = 0.032f,
+                 float cut = glm::cos(glm::radians(12.5f)), float outerCut = glm::cos(glm::radians(17.5f)))
+      : type(tp), position(pos), direction(dir), color(clr), intensity(in), ambient(amb), constant(cnst), linear(lin),
+        quadratic(quad), cutOff(cut), outerCutOff(outerCut) {}
 };

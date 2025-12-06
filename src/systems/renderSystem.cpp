@@ -8,13 +8,10 @@
 #include "systems/transformSystem.h"
 #include <algorithm>
 
-void RenderSystem::addRenderable(Entity entity) { m_entries.emplace_back(entity); }
+void RenderSystem::insertRenderable(Entity entity) { m_entries.emplace_back(entity); }
 void RenderSystem::removeRenderable(Entity entity) {
-  m_entries.erase(std::remove_if(m_entries.begin(), m_entries.end(),
-                                 [entity](const RenderQueue &entry) { return entry.entity == entity; }),
-                  m_entries.end());
+  m_entries.erase(std::remove(m_entries.begin(), m_entries.end(), entity), m_entries.end());
 }
-
 void RenderSystem::renderCall(SystemManager &systemManager, EntityManager &entityManager,
                               ComponentManager &componentManager) {
   auto &renderer = getRenderer();
@@ -50,9 +47,9 @@ void RenderSystem::renderCall(SystemManager &systemManager, EntityManager &entit
 
       renderer.beginShadowPass();
 
-      for (const auto &entry : m_entries) {
-        const auto &transform = componentManager.get<TransformComponent>(entry.entity);
-        const auto &model = componentManager.get<ModelComponent>(entry.entity);
+      for (Entity &entity : m_entries) {
+        const auto &transform = componentManager.get<TransformComponent>(entity);
+        const auto &model = componentManager.get<ModelComponent>(entity);
 
         glm::mat4 modelMatrix = transformSystem.calculateModelMatrix(transform);
         depthShader.setMat4("model", modelMatrix);
@@ -86,9 +83,9 @@ void RenderSystem::renderCall(SystemManager &systemManager, EntityManager &entit
 
   lightSystem.uploadLightsToShader(shader, componentManager);
 
-  for (const auto &entry : m_entries) {
-    const auto &transform = componentManager.get<TransformComponent>(entry.entity);
-    const auto &model = componentManager.get<ModelComponent>(entry.entity);
+  for (Entity entity : m_entries) {
+    const auto &transform = componentManager.get<TransformComponent>(entity);
+    const auto &model = componentManager.get<ModelComponent>(entity);
 
     if (!model.mesh || !model.material)
       continue;
@@ -102,9 +99,9 @@ void RenderSystem::renderCall(SystemManager &systemManager, EntityManager &entit
     shader.setMat3("normalMatrix", normalMatrix);
 
     const auto &material = *model.material;
-    shader.setTex("material.diffuse", material.getDiffuseMap(), 0);
-    shader.setTex("material.specular", material.getSpecularMap(), 1);
-    shader.setTex("material.emission", material.getEmissionMap(), 2);
+    shader.setTex("material.diffuse", material.getDiffuse(), 0);
+    shader.setTex("material.specular", material.getSpecular(), 1);
+    shader.setTex("material.emission", material.getEmission(), 2);
     shader.setFloat("material.shininess", material.getShininess());
 
     renderer.drawMesh(*model.mesh);
@@ -112,4 +109,4 @@ void RenderSystem::renderCall(SystemManager &systemManager, EntityManager &entit
 }
 
 Renderer &RenderSystem::getRenderer() { return m_renderer; }
-const std::vector<RenderSystem::RenderQueue> &RenderSystem::getRenderQueue() const { return m_entries; }
+const std::vector<Entity> &RenderSystem::getRenderQueue() const { return m_entries; }

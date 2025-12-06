@@ -5,16 +5,20 @@
 #include "rendering/resources/shader.h"
 #include <vector>
 
-// Manages light entities and their properties.
-// Supports three light types: Directional (global), Point (radial), Spot (cone with softness).
-// Uploads light data to fragment shader using uniform arrays for per-fragment calculations.
+// Stores and manages all light entities.
+// Handles adding/removing lights and sending light data to the shader.
 class LightSystem : public BaseSystem {
 public:
-  void addLight(Entity entity);
-  void removeLight(Entity entity);
+  // add a light entity to the system
+  void createLight(Entity entity);
 
+  // remove a light entity from the system
+  void destroyLight(Entity entity);
+
+  // return the current list of light entities
   const std::vector<Entity> &getLights() const;
 
+  // upload all light data to the shader
   void uploadLightsToShader(Shader &shader, ComponentManager &componentManager);
 
 private:

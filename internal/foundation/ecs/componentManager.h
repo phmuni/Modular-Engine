@@ -1,7 +1,6 @@
 #pragma once
 #include <memory>
 #include <stdexcept>
-#include <string>
 #include <typeindex>
 #include <unordered_map>
 
@@ -14,66 +13,62 @@ public:
 
 class ComponentManager {
 private:
-  // Type-erased storage using std::type_index as key.
-  // Enables heterogeneous component types in a single container while maintaining type safety
-  // through template specialization at access time.
-  std::unordered_map<std::type_index, std::unordered_map<Entity, std::unique_ptr<BaseComponent>>> storage;
+  // Stores: component type → (entity → component)
+  std::unordered_map<std::type_index, std::unordered_map<Entity, std::unique_ptr<BaseComponent>>> m_storage;
 
 public:
-  template <typename T> void add(Entity entity, std::unique_ptr<T> component) {
-    storage[std::type_index(typeid(T))][entity] = std::move(component);
+  // Insert a component for an entity
+  template <typename T> void insert(Entity entity, std::unique_ptr<T> component) {
+    m_storage[std::type_index(typeid(T))][entity] = std::move(component);
   }
 
+  // Get a component (throws if missing)
   template <typename T> T &get(Entity entity) {
-    auto &map = storage.at(std::type_index(typeid(T)));
+    auto &map = m_storage.at(std::type_index(typeid(T)));
     auto it = map.find(entity);
     if (it == map.end()) {
-      std::string error =
-          std::string("Component ") + typeid(T).name() + " not found for entity " + std::to_string(entity);
-      throw std::runtime_error(error);
+      throw std::runtime_error("Component not found for entity");
     }
     return *static_cast<T *>(it->second.get());
   }
 
-  // Safe access pattern: returns nullptr instead of throwing.
-  // Preferred over get() when component presence is uncertain.
+  // Try to get a component (returns nullptr if missing)
   template <typename T> T *tryGet(Entity entity) {
-    auto it = storage.find(std::type_index(typeid(T)));
-    if (it == storage.end())
+    auto it = m_storage.find(std::type_index(typeid(T)));
+    if (it == m_storage.end())
       return nullptr;
-    auto componentIt = it->second.find(entity);
-    if (componentIt == it->second.end())
+
+    auto cit = it->second.find(entity);
+    if (cit == it->second.end())
       return nullptr;
-    return static_cast<T *>(componentIt->second.get());
+
+    return static_cast<T *>(cit->second.get());
   }
 
+  // Check if an entity has a component
   template <typename T> bool has(Entity entity) {
-    auto it = storage.find(std::type_index(typeid(T)));
-    if (it == storage.end())
+    auto it = m_storage.find(std::type_index(typeid(T)));
+    if (it == m_storage.end())
       return false;
     return it->second.find(entity) != it->second.end();
   }
 
-  template <typename T> Entity entityWithComponent() {
-    auto it = storage.find(std::type_index(typeid(T)));
-    if (it == storage.end())
+  // Get any entity that has this component type (returns -1 if none)
+  template <typename T> Entity findEntityWith() {
+    auto it = m_storage.find(std::type_index(typeid(T)));
+    if (it == m_storage.end())
       return -1;
-
-    for (const auto &[entity, _] : it->second) {
-      return entity;
-    }
-
-    return -1;
+    if (it->second.empty())
+      return -1;
+    return it->second.begin()->first;
   }
 
+  // Remove all components for an entity
   void removeAll(Entity entity) {
-    for (auto &[_, map] : storage) {
+    for (auto &[_, map] : m_storage)
       map.erase(entity);
-    }
   }
 
-  template <typename T> void remove(Entity entity) {
-    auto &map = storage[std::type_index(typeid(T))];
-    map.erase(entity);
-  }
+  // Remove a specific component type from an entity
+  template <typename T> void remove(Entity entity) { m_storage[std::type_index(typeid(T))].erase(entity); }
 };

@@ -1,20 +1,21 @@
 #pragma once
-#include <array>
+#include "glm/ext/vector_float3.hpp"
+#include <cstdint>
 #include <filesystem>
 #include <glad/glad.h>
 #include <string>
 
-
 class Material {
 private:
-  GLuint diffuseMap = 0;
-  GLuint specularMap = 0;
-  GLuint normalMap = 0;
-  GLuint emissionMap = 0;
-  float shininess = 32.0f;
+  GLuint m_diffuse = 0;
+  GLuint m_specular = 0;
+  GLuint m_normal = 0;
+  GLuint m_emission = 0;
+  float m_shininess = 32.0f;
 
-  static GLuint loadTextureFromFile(const std::filesystem::path &filePath,
-                                    const std::array<unsigned char, 3> &fallbackColor);
+  uint32_t m_shader;
+
+  static GLuint loadTexture(const std::filesystem::path &path, const std::array<unsigned char, 3> &fallbackColor);
 
 public:
   Material() {};
@@ -25,9 +26,18 @@ public:
   // Construtor direto com texturas já carregadas
   Material(GLuint diffuse, GLuint specular, GLuint normal, GLuint emission, float shininess = 32.0f);
 
-  GLuint getDiffuseMap() const;
-  GLuint getSpecularMap() const;
-  GLuint getNormalMap() const;
-  GLuint getEmissionMap() const;
+  GLuint getDiffuse() const;
+  GLuint getSpecular() const;
+  GLuint getNormal() const;
+  GLuint getEmission() const;
   float getShininess() const;
+  uint32_t getShader() const;
+
+  void setDiffuse(std::string path);
+  void setSpecular(std::string path);
+  void setNormal(std::string path);
+  void setEmission(std::string path);
+  void setShininess(float shine);
+  void setFallbackColor(glm::vec3 fallback);
+  void setShader(uint32_t handle) const;
 };

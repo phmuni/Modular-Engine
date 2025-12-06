@@ -2,9 +2,9 @@
 #include "components/lightComponent.h"
 #include <algorithm>
 
-void LightSystem::addLight(Entity entity) { m_lights.emplace_back(entity); }
+void LightSystem::createLight(Entity entity) { m_lights.emplace_back(entity); }
 
-void LightSystem::removeLight(Entity entity) {
+void LightSystem::destroyLight(Entity entity) {
   auto it = std::remove(m_lights.begin(), m_lights.end(), entity);
   m_lights.erase(it, m_lights.end());
 }

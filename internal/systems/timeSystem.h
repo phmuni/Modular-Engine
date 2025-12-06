@@ -5,15 +5,15 @@
 
 class TimeSystem : public BaseSystem {
 private:
-  float deltaTime = 0.0f;
-  float lastFrameTime = 0.0f;
-  float startTime = 0.0f;
+  float m_deltaTime = 0.0f;
+  float m_lastFrameTime = 0.0f;
+  float m_startTime = 0.0f;
 
 public:
   TimeSystem() = default;
   ~TimeSystem() = default;
 
-  void start();
+  void begin();
   void update();
 
   float getDeltaTime() const;

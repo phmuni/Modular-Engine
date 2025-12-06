@@ -1,26 +1,26 @@
 #include "systems/timeSystem.h"
 
-void TimeSystem::start() {
-  startTime = SDL_GetTicks() / 1000.0f;
-  lastFrameTime = startTime;
-  deltaTime = 0.0f;
+void TimeSystem::begin() {
+  m_startTime = SDL_GetTicks() / 1000.0f;
+  m_lastFrameTime = m_startTime;
+  m_deltaTime = 0.0f;
 }
 
 void TimeSystem::update() {
   float currentTime = SDL_GetTicks() / 1000.0f;
-  deltaTime = currentTime - lastFrameTime;
-  lastFrameTime = currentTime;
+  m_deltaTime = currentTime - m_lastFrameTime;
+  m_lastFrameTime = currentTime;
 }
 
-float TimeSystem::getDeltaTime() const { return deltaTime; }
+float TimeSystem::getDeltaTime() const { return m_deltaTime; }
 
-float TimeSystem::getLastFrameTime() const { return lastFrameTime; }
+float TimeSystem::getLastFrameTime() const { return m_lastFrameTime; }
 
 float TimeSystem::getTimeSinceStart() const {
   float now = SDL_GetTicks() / 1000.0f;
-  return now - startTime;
+  return now - m_startTime;
 }
 
-void TimeSystem::setDeltaTime(float dt) { deltaTime = dt; }
+void TimeSystem::setDeltaTime(float dt) { m_deltaTime = dt; }
 
-void TimeSystem::setLastFrameTime(float time) { lastFrameTime = time; }
+void TimeSystem::setLastFrameTime(float time) { m_lastFrameTime = time; }

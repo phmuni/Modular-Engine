@@ -8,36 +8,45 @@
 
 enum class Action { MoveForward, MoveBackward, MoveLeft, MoveRight, MoveUp, MoveDown, MoveMouse };
 
+// Handles keyboard and mouse input.
+// Stores key states, mouse offsets, and custom key bindings.
+// Also tracks quit events and toggles.
 class InputSystem : public BaseSystem {
 private:
-  float mouseXOffset = 0.0f;
-  float mouseYOffset = 0.0f;
-  bool quitRequested = false;
-  bool controlEnabled = true;
-  bool toggleKeyLastState = false;
+  float m_mouseXOffset = 0.0f;
+  float m_mouseYOffset = 0.0f;
+  bool m_quitRequested = false;
+  bool m_controlEnabled = true;
+  bool m_toggleKeyLastState = false;
 
-  bool keys[SDL_SCANCODE_COUNT]{false};
+  // keyboard state array
+  bool m_keys[SDL_SCANCODE_COUNT]{false};
 
-  std::unordered_map<Action, SDL_Scancode> keyBinds;
+  // action -> key mapping
+  std::unordered_map<Action, SDL_Scancode> m_keyBinds;
 
+  // assign default key bindings
   void setDefaultKeyBinds();
 
 public:
   InputSystem();
 
+  // process input and update internal states
   bool update(bool *running, SystemManager &systemManager);
-  bool isActionPressed(Action action) const;
 
-  void setKeyBind(Action action, SDL_Scancode keyCode);
+  // getters for state checks
+  bool isQuitRequested() const;
+  bool isActionPressed(Action action) const;
+  bool isKeyPressed(SDL_Scancode key) const;
 
   float getMouseXOffset() const;
   float getMouseYOffset() const;
   bool getMove() const;
-  bool isQuitRequested() const;
-  bool isKeyPressed(SDL_Scancode key) const;
 
+  // setters for internal values
+  void setQuitRequested(bool quitRequested);
   void setMouseXOffset(float mouseXOffset);
   void setMouseYOffset(float mouseYOffset);
-  void setQuitRequested(bool quitRequested);
+  void setKeyBind(Action action, SDL_Scancode keyCode);
   void setKeyPressed(SDL_Scancode key, bool pressed);
 };

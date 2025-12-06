@@ -13,29 +13,36 @@ class Renderer {
 private:
   SDL_Window *m_window = nullptr;
 
-  GLuint depthMap = 0;
-  GLuint depthMapFBO = 0;
-  const int shadowWidth = 2048;
-  const int shadowHeight = 2048;
+  GLuint m_depthMap = 0;
+  GLuint m_depthMapFBO = 0;
+  const int m_shadowWidth = 2048;
+  const int m_shadowHeight = 2048;
 
-  int screenWidth = 1280;
-  int screenHeight = 720;
+  int m_screenWidth = 1280;
+  int m_screenHeight = 720;
 
+  // Create depth map and FBO for shadow pass
   void initShadowMapping();
 
 public:
-  void initialize(SDL_Window *window);
+  // Initialize OpenGL state and attach to window
+  void init(SDL_Window *window);
 
+  // Draw a mesh using the active shader
+  void drawMesh(const Mesh &mesh) const;
+
+  // Start and end main render pass
   void beginFrame() const;
   void endFrame() const;
 
+  // Start and end shadow depth pass
   void beginShadowPass();
   void endShadowPass();
 
-  void drawMesh(const Mesh &mesh) const;
-
+  // Get shadow depth texture / FBO
   GLuint getDepthMap() const;
   GLuint getDepthMapFBO() const;
 
+  // Update OpenGL viewport size
   void setViewportSize(int width, int height);
 };

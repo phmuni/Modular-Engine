@@ -6,9 +6,9 @@
 InputSystem::InputSystem() { setDefaultKeyBinds(); }
 
 void InputSystem::setDefaultKeyBinds() {
-  keyBinds = {{Action::MoveForward, SDL_SCANCODE_W}, {Action::MoveBackward, SDL_SCANCODE_S},
-              {Action::MoveLeft, SDL_SCANCODE_A},    {Action::MoveRight, SDL_SCANCODE_D},
-              {Action::MoveUp, SDL_SCANCODE_SPACE},  {Action::MoveDown, SDL_SCANCODE_LSHIFT}};
+  m_keyBinds = {{Action::MoveForward, SDL_SCANCODE_W}, {Action::MoveBackward, SDL_SCANCODE_S},
+                {Action::MoveLeft, SDL_SCANCODE_A},    {Action::MoveRight, SDL_SCANCODE_D},
+                {Action::MoveUp, SDL_SCANCODE_SPACE},  {Action::MoveDown, SDL_SCANCODE_LSHIFT}};
 }
 
 bool InputSystem::update(bool *running, SystemManager &systemManager) {
@@ -17,8 +17,8 @@ bool InputSystem::update(bool *running, SystemManager &systemManager) {
   auto &windowSystem = systemManager.getSystem<WindowSystem>();
   auto &renderer = systemManager.getSystem<RenderSystem>().getRenderer();
 
-  mouseXOffset = 0.0f;
-  mouseYOffset = 0.0f;
+  m_mouseXOffset = 0.0f;
+  m_mouseYOffset = 0.0f;
 
   while (SDL_PollEvent(&event)) {
     ImGui_ImplSDL3_ProcessEvent(&event);
@@ -29,16 +29,16 @@ bool InputSystem::update(bool *running, SystemManager &systemManager) {
       break;
 
     case SDL_EVENT_KEY_DOWN:
-      keys[event.key.scancode] = true;
+      m_keys[event.key.scancode] = true;
       break;
 
     case SDL_EVENT_KEY_UP:
-      keys[event.key.scancode] = false;
+      m_keys[event.key.scancode] = false;
       break;
 
     case SDL_EVENT_MOUSE_MOTION:
-      mouseXOffset += event.motion.xrel;
-      mouseYOffset += event.motion.yrel;
+      m_mouseXOffset += event.motion.xrel;
+      m_mouseYOffset += event.motion.yrel;
       break;
 
     case SDL_EVENT_WINDOW_RESIZED:
@@ -53,38 +53,38 @@ bool InputSystem::update(bool *running, SystemManager &systemManager) {
 
   bool togglePressed = isKeyPressed(SDL_SCANCODE_RALT);
 
-  if (togglePressed && !toggleKeyLastState) {
-    controlEnabled = !controlEnabled;
+  if (togglePressed && !m_toggleKeyLastState) {
+    m_controlEnabled = !m_controlEnabled;
   }
 
-  toggleKeyLastState = togglePressed;
+  m_toggleKeyLastState = togglePressed;
 
-  return !quitRequested;
+  return !m_quitRequested;
 }
 
 bool InputSystem::isActionPressed(Action action) const {
-  auto it = keyBinds.find(action);
-  if (it != keyBinds.end()) {
-    return keys[it->second];
+  auto it = m_keyBinds.find(action);
+  if (it != m_keyBinds.end()) {
+    return m_keys[it->second];
   }
   return false;
 }
 
-void InputSystem::setKeyBind(Action action, SDL_Scancode keyCode) { keyBinds[action] = keyCode; }
+void InputSystem::setKeyBind(Action action, SDL_Scancode keyCode) { m_keyBinds[action] = keyCode; }
 
-float InputSystem::getMouseXOffset() const { return mouseXOffset; }
+float InputSystem::getMouseXOffset() const { return m_mouseXOffset; }
 
-float InputSystem::getMouseYOffset() const { return mouseYOffset; }
-bool InputSystem::getMove() const { return controlEnabled; }
+float InputSystem::getMouseYOffset() const { return m_mouseYOffset; }
+bool InputSystem::getMove() const { return m_controlEnabled; }
 
-bool InputSystem::isQuitRequested() const { return quitRequested; }
+bool InputSystem::isQuitRequested() const { return m_quitRequested; }
 
-bool InputSystem::isKeyPressed(SDL_Scancode key) const { return keys[key]; }
+bool InputSystem::isKeyPressed(SDL_Scancode key) const { return m_keys[key]; }
 
-void InputSystem::setMouseXOffset(float xOffset) { this->mouseXOffset = xOffset; }
+void InputSystem::setMouseXOffset(float xOffset) { this->m_mouseXOffset = xOffset; }
 
-void InputSystem::setMouseYOffset(float yOffset) { this->mouseYOffset = yOffset; }
+void InputSystem::setMouseYOffset(float yOffset) { this->m_mouseYOffset = yOffset; }
 
-void InputSystem::setQuitRequested(bool quit) { this->quitRequested = quit; }
+void InputSystem::setQuitRequested(bool quit) { this->m_quitRequested = quit; }
 
-void InputSystem::setKeyPressed(SDL_Scancode key, bool pressed) { this->keys[key] = pressed; }
+void InputSystem::setKeyPressed(SDL_Scancode key, bool pressed) { this->m_keys[key] = pressed; }

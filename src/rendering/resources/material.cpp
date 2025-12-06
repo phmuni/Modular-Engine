@@ -1,5 +1,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "rendering/resources/material.h"
+#include <array>
 #include <iostream>
 #include <stb_image/stb_image.h>
 #include <vector>
@@ -8,30 +9,29 @@
 static const std::vector<std::string> kSupportedExtensions = {".png", ".jpg", ".jpeg", ".bmp", ".tga"};
 
 // Construtor que carrega texturas do diretório
-Material::Material(const std::string &textureDirectory, float shininess) : shininess(shininess) {
+Material::Material(const std::string &textureDirectory, float shininess) : m_shininess(shininess) {
   std::filesystem::path baseDir(textureDirectory);
 
-  diffuseMap = loadTextureFromFile(baseDir / "diffuse", {255, 255, 255});
-  specularMap = loadTextureFromFile(baseDir / "specular", {255, 255, 255});
-  normalMap = loadTextureFromFile(baseDir / "normal", {128, 128, 255});
-  emissionMap = loadTextureFromFile(baseDir / "emission", {0, 0, 0});
+  m_diffuse = loadTexture(baseDir / "diffuse", {255, 255, 255});
+  m_specular = loadTexture(baseDir / "specular", {255, 255, 255});
+  m_normal = loadTexture(baseDir / "normal", {128, 128, 255});
+  m_emission = loadTexture(baseDir / "emission", {0, 0, 0});
 }
 
 // Construtor direto com texturas já carregadas
 Material::Material(GLuint diffuse, GLuint specular, GLuint normal, GLuint emission, float shininess)
-    : diffuseMap(diffuse), specularMap(specular), normalMap(normal), emissionMap(emission), shininess(shininess) {}
+    : m_diffuse(diffuse), m_specular(specular), m_normal(normal), m_emission(emission), m_shininess(shininess) {}
 
-GLuint Material::getDiffuseMap() const { return diffuseMap; }
-GLuint Material::getSpecularMap() const { return specularMap; }
-GLuint Material::getNormalMap() const { return normalMap; }
-GLuint Material::getEmissionMap() const { return emissionMap; }
-float Material::getShininess() const { return shininess; }
+GLuint Material::getDiffuse() const { return m_diffuse; }
+GLuint Material::getSpecular() const { return m_specular; }
+GLuint Material::getNormal() const { return m_normal; }
+GLuint Material::getEmission() const { return m_emission; }
+float Material::getShininess() const { return m_shininess; }
 
-GLuint Material::loadTextureFromFile(const std::filesystem::path &filePath,
-                                     const std::array<unsigned char, 3> &fallbackColor) {
+GLuint Material::loadTexture(const std::filesystem::path &path, const std::array<unsigned char, 3> &fallbackColor) {
   std::string foundPath;
   for (auto const &ext : kSupportedExtensions) {
-    auto candidate = filePath;
+    auto candidate = path;
     candidate += ext;
     if (std::filesystem::exists(candidate)) {
       foundPath = candidate.string();
@@ -57,7 +57,7 @@ GLuint Material::loadTextureFromFile(const std::filesystem::path &filePath,
       std::cerr << "[Material] Fail to load " << foundPath << ". Using fallback color.\n";
     }
   } else {
-    std::cerr << "[Material] File not found in: " << filePath << ".[png|jpg|...]. Using fallback color.\n";
+    std::cerr << "[Material] File not found in: " << path << ".[png|jpg|...]. Using fallback color.\n";
   }
 
   if (textureID == 0) {

@@ -1,6 +1,6 @@
 #include "rendering/renderer.h"
 
-void Renderer::initialize(SDL_Window *window) {
+void Renderer::init(SDL_Window *window) {
   m_window = window;
   initShadowMapping();
 }
@@ -16,22 +16,22 @@ void Renderer::drawMesh(const Mesh &mesh) const {
 }
 
 void Renderer::beginShadowPass() {
-  glViewport(0, 0, shadowWidth, shadowHeight);
-  glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+  glViewport(0, 0, m_shadowWidth, m_shadowHeight);
+  glBindFramebuffer(GL_FRAMEBUFFER, m_depthMapFBO);
   glClear(GL_DEPTH_BUFFER_BIT);
 }
 
 void Renderer::endShadowPass() {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glViewport(0, 0, screenWidth, screenHeight);
+  glViewport(0, 0, m_screenWidth, m_screenHeight);
 }
 
 void Renderer::initShadowMapping() {
-  glGenFramebuffers(1, &depthMapFBO);
+  glGenFramebuffers(1, &m_depthMapFBO);
 
-  glGenTextures(1, &depthMap);
-  glBindTexture(GL_TEXTURE_2D, depthMap);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowWidth, shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
+  glGenTextures(1, &m_depthMap);
+  glBindTexture(GL_TEXTURE_2D, m_depthMap);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_shadowWidth, m_shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
                nullptr);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -41,18 +41,18 @@ void Renderer::initShadowMapping() {
   float borderColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
   glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
-  glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+  glBindFramebuffer(GL_FRAMEBUFFER, m_depthMapFBO);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthMap, 0);
   glDrawBuffer(GL_NONE);
   glReadBuffer(GL_NONE);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-GLuint Renderer::getDepthMap() const { return depthMap; }
+GLuint Renderer::getDepthMap() const { return m_depthMap; }
 
-GLuint Renderer::getDepthMapFBO() const { return depthMapFBO; }
+GLuint Renderer::getDepthMapFBO() const { return m_depthMapFBO; }
 
 void Renderer::setViewportSize(int width, int height) {
-  screenWidth = width;
-  screenHeight = height;
+  m_screenWidth = width;
+  m_screenHeight = height;
 }

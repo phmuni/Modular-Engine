@@ -1,7 +1,6 @@
 #pragma once
 #include <memory>
 #include <stdexcept>
-#include <string>
 #include <typeindex>
 #include <unordered_map>
 
@@ -12,30 +11,27 @@ public:
 
 class SystemManager {
 private:
-  std::unordered_map<std::type_index, std::unique_ptr<BaseSystem>> systems;
+  // Stores: system type → system instance
+  std::unordered_map<std::type_index, std::unique_ptr<BaseSystem>> m_systems;
 
 public:
-  template <typename T, typename... Args> void registerSystem(Args &&...args);
+  // Register a system of type T
+  template <typename T, typename... Args> void insert(Args &&...args);
 
+  // Get a system of type T (throws if not found)
   template <typename T> T &getSystem() const;
-
-  template <typename T> void updateAll() const;
 };
 
-template <typename T, typename... Args> void SystemManager::registerSystem(Args &&...args) {
+template <typename T, typename... Args> void SystemManager::insert(Args &&...args) {
   std::type_index typeId(typeid(T));
-
   auto system = std::make_unique<T>(std::forward<Args>(args)...);
-  systems[typeId] = std::move(system);
+  m_systems[typeId] = std::move(system);
 }
 
 template <typename T> T &SystemManager::getSystem() const {
-  auto it = systems.find(typeid(T));
-  if (it != systems.end()) {
+  auto it = m_systems.find(std::type_index(typeid(T)));
+  if (it != m_systems.end()) {
     return *static_cast<T *>(it->second.get());
   }
-  std::string error = std::string("System ") + typeid(T).name() + " not found";
-  throw std::runtime_error(error);
+  throw std::runtime_error("System not found");
 }
-
-template <typename T> void SystemManager::updateAll() const {}

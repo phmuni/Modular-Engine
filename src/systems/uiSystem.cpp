@@ -42,22 +42,22 @@ void UISystem::render(EntityManager &entityManager, SystemManager &systemManager
 
   ImGui::BeginChild("RenderList", ImVec2(avail.x, avail.y - buttonHeight), true);
 
-  for (const auto &entry : renderSystem.getRenderQueue()) {
-    Entity entity = entry.entity;
+  for (Entity e : renderSystem.getRenderQueue()) {
+    Entity entity = e;
     std::string label = "- " + componentManager.get<NameComponent>(entity).name + "##" + std::to_string(entity);
-    bool isSelected = (selectedEntity == entity);
+    bool isSelected = (m_selectedEntity == entity);
 
     if (ImGui::Selectable(label.c_str(), isSelected)) {
-      selectedEntity = entity;
+      m_selectedEntity = entity;
     }
 
     if (ImGui::BeginPopupContextItem(label.c_str())) {
-      selectedEntity = entity;
-      ImGui::Text("Entity ID: %d", selectedEntity);
+      m_selectedEntity = entity;
+      ImGui::Text("Entity ID: %d", m_selectedEntity);
       ImGui::Separator();
 
-      if (componentManager.has<TransformComponent>(selectedEntity)) {
-        auto &transform = componentManager.get<TransformComponent>(selectedEntity);
+      if (componentManager.has<TransformComponent>(m_selectedEntity)) {
+        auto &transform = componentManager.get<TransformComponent>(m_selectedEntity);
         ImGui::Text("Transform:");
         ImGui::DragFloat3("Position", &transform.position.x, 0.1f);
         ImGui::DragFloat3("Rotation", &transform.rotation.x, 0.1f);
@@ -65,7 +65,7 @@ void UISystem::render(EntityManager &entityManager, SystemManager &systemManager
 
         if (ImGui::Button("Delete")) {
           auto &sceneSystem = systemManager.getSystem<SceneSystem>();
-          sceneSystem.removeEntity(selectedEntity);
+          sceneSystem.destroyEntity(m_selectedEntity);
         }
       }
 
@@ -82,19 +82,19 @@ void UISystem::render(EntityManager &entityManager, SystemManager &systemManager
 
   for (const auto &entity : lightSystem.getLights()) {
     std::string label = "- " + componentManager.get<NameComponent>(entity).name + "##" + std::to_string(entity);
-    bool isSelected = (selectedEntity == entity);
+    bool isSelected = (m_selectedEntity == entity);
 
     if (ImGui::Selectable(label.c_str(), isSelected)) {
-      selectedEntity = entity;
+      m_selectedEntity = entity;
     }
 
     if (ImGui::BeginPopupContextItem(label.c_str())) {
-      selectedEntity = entity;
-      ImGui::Text("Light ID: %d", selectedEntity);
+      m_selectedEntity = entity;
+      ImGui::Text("Light ID: %d", m_selectedEntity);
       ImGui::Separator();
 
-      if (componentManager.has<LightComponent>(selectedEntity)) {
-        auto &light = componentManager.get<LightComponent>(selectedEntity);
+      if (componentManager.has<LightComponent>(m_selectedEntity)) {
+        auto &light = componentManager.get<LightComponent>(m_selectedEntity);
 
         ImGui::Text("Light Properties:");
         ImGui::Separator();
@@ -124,7 +124,7 @@ void UISystem::render(EntityManager &entityManager, SystemManager &systemManager
 
         if (ImGui::Button("Delete")) {
           auto &sceneSystem = systemManager.getSystem<SceneSystem>();
-          sceneSystem.removeEntity(selectedEntity);
+          sceneSystem.destroyEntity(m_selectedEntity);
         }
       }
 
@@ -170,7 +170,7 @@ void UISystem::render(EntityManager &entityManager, SystemManager &systemManager
       ImGui::InputFloat3("Scale", scale);
 
       if (ImGui::Button("Create")) {
-        sceneSystem.createEntityModel(modelName, modelPath, texturePath, glm::vec3(pos[0], pos[1], pos[2]),
+        sceneSystem.createModelEntity(modelName, modelPath, texturePath, glm::vec3(pos[0], pos[1], pos[2]),
                                       glm::vec3(rot[0], rot[1], rot[2]), glm::vec3(scale[0], scale[1], scale[2]));
         formType = 0;
         ImGui::CloseCurrentPopup();
@@ -218,7 +218,7 @@ void UISystem::render(EntityManager &entityManager, SystemManager &systemManager
       }
 
       if (ImGui::Button("Create##light_form")) {
-        sceneSystem.createEntityLight(lightName, glm::vec3(pos[0], pos[1], pos[2]), glm::vec3(dir[0], dir[1], dir[2]),
+        sceneSystem.createLightEntity(lightName, glm::vec3(pos[0], pos[1], pos[2]), glm::vec3(dir[0], dir[1], dir[2]),
                                       glm::vec3(color[0], color[1], color[2]), static_cast<LightType>(type), intensity,
                                       cutOff, outerCutOff);
         memset(lightName, 0, sizeof(lightName));

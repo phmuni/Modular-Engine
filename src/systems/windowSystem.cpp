@@ -1,6 +1,6 @@
 #include "systems/windowSystem.h"
 
-WindowSystem::WindowSystem(float screenWidth, float screenHeight) : window(nullptr), glContext(nullptr) {
+WindowSystem::WindowSystem(float screenWidth, float screenHeight) : m_window(nullptr), m_glContext(nullptr) {
   initialize(screenWidth, screenHeight);
 };
 
@@ -10,14 +10,14 @@ bool WindowSystem::initialize(float screenWidth, float screenHeight) {
     return false;
   }
 
-  window = SDL_CreateWindow("Engine", screenWidth, screenHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
-  if (!window) {
-    SDL_Log("Failed to create the window: %s", SDL_GetError());
+  m_window = SDL_CreateWindow("Engine", screenWidth, screenHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+  if (!m_window) {
+    SDL_Log("Failed to create the m_window: %s", SDL_GetError());
     return false;
   }
 
-  glContext = SDL_GL_CreateContext(window);
-  if (!glContext) {
+  m_glContext = SDL_GL_CreateContext(m_window);
+  if (!m_glContext) {
     SDL_Log("Failed to create the OpenGL context: %s", SDL_GetError());
     return false;
   }
@@ -29,7 +29,7 @@ bool WindowSystem::initialize(float screenWidth, float screenHeight) {
 
   glEnable(GL_DEPTH_TEST);
   SDL_GL_SetSwapInterval(1);
-  SDL_SetWindowRelativeMouseMode(window, true);
+  SDL_SetWindowRelativeMouseMode(m_window, true);
 
   return true;
 }
@@ -38,7 +38,7 @@ void WindowSystem::onResize(int newWidth, int newHeight, Renderer &renderer) {
   renderer.setViewportSize(newWidth, newHeight);
 }
 
-SDL_Window *WindowSystem::getWindow() const { return window; }
-SDL_GLContext WindowSystem::getContext() const { return glContext; }
+SDL_Window *WindowSystem::getWindow() const { return m_window; }
+SDL_GLContext WindowSystem::getContext() const { return m_glContext; }
 
-void WindowSystem::setCursor(bool boolean) { SDL_SetWindowRelativeMouseMode(window, boolean); }
+void WindowSystem::setCursor(bool boolean) { SDL_SetWindowRelativeMouseMode(m_window, boolean); }

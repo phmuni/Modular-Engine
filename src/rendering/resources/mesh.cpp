@@ -3,40 +3,40 @@
 #include <tiny_obj_loader/tiny_obj_loader.h>
 
 // Construtor que carrega de arquivo OBJ
-Mesh::Mesh(const std::string &filename) : VAO(0), VBO(0), EBO(0) {
-  if (!loadFromOBJ(filename)) {
+Mesh::Mesh(const std::string &filename) : m_VAO(0), m_VBO(0), m_EBO(0) {
+  if (!loadOBJ(filename)) {
     std::cerr << "[Mesh] Failed to load OBJ file: " << filename << std::endl;
   }
 }
 
 // Construtor com vértices e índices
 Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices)
-    : vertices(vertices), indices(indices), VAO(0), VBO(0), EBO(0) {
+    : m_vertices(vertices), m_indices(indices), m_VAO(0), m_VBO(0), m_EBO(0) {
   setupBuffers();
 }
 
 Mesh::~Mesh() {
-  glDeleteVertexArrays(1, &VAO);
-  glDeleteBuffers(1, &VBO);
-  glDeleteBuffers(1, &EBO);
+  glDeleteVertexArrays(1, &m_VAO);
+  glDeleteBuffers(1, &m_VBO);
+  glDeleteBuffers(1, &m_EBO);
 }
 
 void Mesh::setupBuffers() {
-  if (vertices.empty() || indices.empty()) {
+  if (m_vertices.empty() || m_indices.empty()) {
     std::cerr << "Erro: Vertices ou índices não definidos!" << std::endl;
     return;
   }
 
-  glGenVertexArrays(1, &VAO);
-  glBindVertexArray(VAO);
+  glGenVertexArrays(1, &m_VAO);
+  glBindVertexArray(m_VAO);
 
-  glGenBuffers(1, &VBO);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+  glGenBuffers(1, &m_VBO);
+  glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+  glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertex), &m_vertices[0], GL_STATIC_DRAW);
 
-  glGenBuffers(1, &EBO);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+  glGenBuffers(1, &m_EBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(unsigned int), &m_indices[0], GL_STATIC_DRAW);
 
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, position));
   glEnableVertexAttribArray(0);
@@ -50,17 +50,18 @@ void Mesh::setupBuffers() {
   glBindVertexArray(0);
 }
 
-GLuint Mesh::getVAO() const { return VAO; }
+GLuint Mesh::getVAO() const { return m_VAO; }
 
-size_t Mesh::getIndexCount() const { return indices.size(); }
+size_t Mesh::getIndexCount() const { return m_indices.size(); }
+// std::vector<Submesh> &Mesh::getSubmeshes() { return m_submeshes; }
 
 void Mesh::setVerticesIndices(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices) {
-  this->vertices = vertices;
-  this->indices = indices;
+  this->m_vertices = vertices;
+  this->m_indices = indices;
   setupBuffers();
 }
 
-bool Mesh::loadFromOBJ(const std::string &filename) {
+bool Mesh::loadOBJ(const std::string &filename) {
   tinyobj::attrib_t attrib;
   std::vector<tinyobj::shape_t> shapes;
   std::vector<tinyobj::material_t> materials;
@@ -94,8 +95,8 @@ bool Mesh::loadFromOBJ(const std::string &filename) {
                            1.0f - attrib.texcoords[2 * idx.texcoord_index + 1]};
       }
 
-      vertices.emplace_back(vertex);
-      indices.emplace_back(static_cast<unsigned int>(vertices.size() - 1));
+      m_vertices.emplace_back(vertex);
+      m_indices.emplace_back(static_cast<unsigned int>(m_vertices.size() - 1));
     }
   }
 

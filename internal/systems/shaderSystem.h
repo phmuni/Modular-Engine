@@ -7,7 +7,7 @@
 
 class ShaderSystem : public BaseSystem {
 private:
-  std::unordered_map<std::string, std::shared_ptr<Shader>> shaders;
+  std::unordered_map<std::string, std::shared_ptr<Shader>> m_shaders;
 
 public:
   ShaderSystem() = default;

@@ -12,13 +12,13 @@
 #include <memory>
 #include <utility>
 
-void SceneSystem::removeEntity(Entity entity) {
+void SceneSystem::destroyEntity(Entity entity) {
   auto &renderSystem = systemManager.getSystem<RenderSystem>();
   renderSystem.removeRenderable(entity);
 
   if (componentManager.has<LightComponent>(entity)) {
     auto &lightSystem = systemManager.getSystem<LightSystem>();
-    lightSystem.removeLight(entity);
+    lightSystem.destroyLight(entity);
 
   } else if (componentManager.has<CameraComponent>(entity)) {
     auto &cameraSystem = systemManager.getSystem<CameraSystem>();
@@ -26,10 +26,10 @@ void SceneSystem::removeEntity(Entity entity) {
   }
 
   componentManager.removeAll(entity);
-  entityManager.deleteEntity(entity);
+  entityManager.destroyEntity(entity);
 };
 
-void SceneSystem::createEntityCamera(glm::vec3 position, float yaw, float pitch, float fov) {
+void SceneSystem::createCameraEntity(glm::vec3 position, float yaw, float pitch, float fov) {
   auto &cameraSystem = systemManager.getSystem<CameraSystem>();
   Entity newCamera = entityManager.createEntity();
 
@@ -41,11 +41,11 @@ void SceneSystem::createEntityCamera(glm::vec3 position, float yaw, float pitch,
 
   cameraSystem.updateFront(*cameraComponent);
 
-  componentManager.add<CameraComponent>(newCamera, std::move(cameraComponent));
+  componentManager.insert<CameraComponent>(newCamera, std::move(cameraComponent));
   cameraSystem.setActiveCamera(newCamera);
 }
 
-void SceneSystem::createEntityModel(const std::string name, const std::string &modelPath,
+void SceneSystem::createModelEntity(const std::string name, const std::string &modelPath,
                                     const std::string &texturePath, glm::vec3 position, glm::vec3 rotation,
                                     glm::vec3 scale) {
   Entity entity = entityManager.createEntity();
@@ -62,22 +62,23 @@ void SceneSystem::createEntityModel(const std::string name, const std::string &m
     return;
   }
 
-  componentManager.add<NameComponent>(entity, std::make_unique<NameComponent>(name));
-  componentManager.add<TransformComponent>(entity, std::make_unique<TransformComponent>(position, rotation, scale));
-  componentManager.add<ModelComponent>(entity, std::make_unique<ModelComponent>(std::move(mesh), std::move(material)));
+  componentManager.insert<NameComponent>(entity, std::make_unique<NameComponent>(name));
+  componentManager.insert<TransformComponent>(entity, std::make_unique<TransformComponent>(position, rotation, scale));
+  componentManager.insert<ModelComponent>(entity,
+                                          std::make_unique<ModelComponent>(std::move(mesh), std::move(material)));
 
-  systemManager.getSystem<RenderSystem>().addRenderable(entity);
+  systemManager.getSystem<RenderSystem>().insertRenderable(entity);
 }
 
-void SceneSystem::createEntityLight(const std::string &name, glm::vec3 position, glm::vec3 direction, glm::vec3 color,
+void SceneSystem::createLightEntity(const std::string &name, glm::vec3 position, glm::vec3 direction, glm::vec3 color,
                                     LightType type, float intensity, float cutOff, float outerCutOff) {
   Entity entity = entityManager.createEntity();
 
   auto light = std::make_unique<LightComponent>(type, position, direction, color, intensity, 0.2f, 1.0f, 0.09f, 0.032f,
                                                 cutOff, outerCutOff);
 
-  componentManager.add<NameComponent>(entity, std::make_unique<NameComponent>(name));
-  componentManager.add<LightComponent>(entity, std::move(light));
+  componentManager.insert<NameComponent>(entity, std::make_unique<NameComponent>(name));
+  componentManager.insert<LightComponent>(entity, std::move(light));
 
-  systemManager.getSystem<LightSystem>().addLight(entity);
+  systemManager.getSystem<LightSystem>().createLight(entity);
 }

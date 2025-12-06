@@ -1,9 +1,9 @@
 #include "foundation/ecs/entityManager.h"
 
 Entity EntityManager::createEntity() {
-  Entity entity = nextEntityID++;
-  activeEntities.insert(entity);
+  Entity entity = m_nextEntityID++;
+  m_activeEntities.insert(entity);
   return entity;
 }
 
-void EntityManager::deleteEntity(Entity entity) { activeEntities.erase(entity); }
+void EntityManager::destroyEntity(Entity entity) { m_activeEntities.erase(entity); }

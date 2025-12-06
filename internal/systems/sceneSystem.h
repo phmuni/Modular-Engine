@@ -17,10 +17,10 @@ public:
   SceneSystem(EntityManager &em, ComponentManager &cm, SystemManager &sm)
       : entityManager(em), componentManager(cm), systemManager(sm) {}
 
-  void removeEntity(Entity entity);
-  void createEntityCamera(glm::vec3 position, float yaw, float pitch, float fov);
-  void createEntityModel(const std::string name, const std::string &modelPath, const std::string &texturePath,
+  void destroyEntity(Entity entity);
+  void createCameraEntity(glm::vec3 position, float yaw, float pitch, float fov);
+  void createModelEntity(const std::string name, const std::string &modelPath, const std::string &texturePath,
                          glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
-  void createEntityLight(const std::string &name, glm::vec3 position, glm::vec3 direction, glm::vec3 color,
+  void createLightEntity(const std::string &name, glm::vec3 position, glm::vec3 direction, glm::vec3 color,
                          LightType type, float intensity, float cutOff, float outerCutOff);
 };

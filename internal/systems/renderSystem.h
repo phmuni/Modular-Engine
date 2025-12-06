@@ -7,27 +7,29 @@
 
 #include <vector>
 
-// Manages rendering pipeline: shadow pass + main render pass.
-// Implements Percentage Closer Filtering (PCF) 5x5 for soft shadow edges.
-// Normal matrix computed on CPU (transpose(inverse(model))) to optimize vertex shader.
+// Handles the rendering process.
+// Stores renderable entities and performs shadow pass + main pass.
 class RenderSystem : public BaseSystem {
 public:
-  struct RenderQueue {
-    RenderQueue(Entity entity) : entity(entity) {}
-    Entity entity;
-  };
+  // add entity to render list
+  void insertRenderable(Entity entity);
 
-  void addRenderable(Entity entity);
+  // remove entity from render list
   void removeRenderable(Entity entity);
 
+  // main render call
   void renderCall(SystemManager &systemManager, EntityManager &entityManager, ComponentManager &componentManager);
 
+  // access the renderer
   Renderer &getRenderer();
-  const std::vector<RenderQueue> &getRenderQueue() const;
+
+  // return render queue list
+  const std::vector<Entity> &getRenderQueue() const;
 
 private:
-  std::vector<RenderQueue> m_entries;
+  std::vector<Entity> m_entries;
   Renderer m_renderer;
 
+  // prepare shader light uniforms
   void setupLights();
 };
