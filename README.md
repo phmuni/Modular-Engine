@@ -19,12 +19,15 @@ A modular 3D graphics engine developed in modern C++. Built on a robust Entity-C
 
 - **Entity-Component-System (ECS)** - Flexible, decoupled architecture for scalable game logic
 - **OpenGL Rendering** - Modern graphics API integration with shader support
-- **Asset Loading** - Support for multiple asset formats and automated resource management
-- **Camera System** - Flexible camera control and projection management
-- **Input System** - Keyboard and mouse input handling
-- **Lighting System** - Configurable lighting with support for multiple light sources
-- **UI Integration** - ImGui-based user interface framework
-- **Scene Management** - Entity and scene lifecycle management
+- **PBR Material System** - Per-submesh materials with diffuse, specular, normal, and emission maps
+- **Resource Caching** - Automatic texture caching and handle-based resource management
+- **Shadow Mapping** - Real-time shadow rendering with configurable depth maps
+- **Asset Loading** - Support for OBJ/FBX formats via Assimp with automated resource management
+- **Camera System** - Flexible camera control with quaternion-based rotations
+- **Input System** - Keyboard and mouse input handling with SDL3
+- **Lighting System** - Multiple light types (directional, point, spotlight) with PBR shading
+- **UI Integration** - ImGui-based editor with material inspector and entity hierarchy
+- **Scene Management** - Entity lifecycle management and component composition
 
 ## 🏗️ Architecture
 

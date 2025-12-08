@@ -25,7 +25,7 @@ int main() {
 
 void createDefaultModel(const std::string &name, Engine &engine, glm::vec3 position, glm::vec3 scale) {
   glm::vec3 rotation(0.0f);
-  engine.createModelEntity(name, EngineConfig::MODEL_BACKPACK, position, rotation, scale);
+  engine.createModelEntity(name, EngineConfig::MODEL_BOX, position, rotation, scale);
 }
 
 void createDirectionalLight(const std::string &name, Engine &engine) {
