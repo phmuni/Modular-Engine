@@ -1,10 +1,9 @@
 #include "foundation/core/config.h"
 #include "foundation/core/engine.h"
 
-// Forward declarations
+// Scene setup helpers
 void createDefaultModel(const std::string &name, Engine &engine, glm::vec3 position = glm::vec3(0.0f),
                         glm::vec3 scale = glm::vec3(1.0f));
-void createSpotlight(const std::string &name, Engine &engine);
 void createDirectionalLight(const std::string &name, Engine &engine);
 void createCamera(Engine &engine);
 
@@ -12,16 +11,12 @@ int main() {
   Engine engine;
 
   if (!engine.init()) {
-    SDL_Log("Failed to initialize engine!");
     return 1;
   }
 
-  glClearColor(EngineConfig::DEFAULT_CLEAR_COLOR_R, EngineConfig::DEFAULT_CLEAR_COLOR_G,
-               EngineConfig::DEFAULT_CLEAR_COLOR_B, EngineConfig::DEFAULT_CLEAR_COLOR_A);
-
-  createDefaultModel("Box 1", engine, glm::vec3(0.0f), glm::vec3(1.0f));
-  createDefaultModel("Box 2", engine, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.5f));
-  createDirectionalLight("Directional 1", engine);
+  // Setup default scene
+  createDefaultModel("Object", engine, glm::vec3(0.0f), glm::vec3(1.0f));
+  createDirectionalLight("Directional", engine);
   createCamera(engine);
 
   engine.run();
@@ -30,20 +25,7 @@ int main() {
 
 void createDefaultModel(const std::string &name, Engine &engine, glm::vec3 position, glm::vec3 scale) {
   glm::vec3 rotation(0.0f);
-
-  engine.createModelEntity(name, EngineConfig::MODEL_BOX, EngineConfig::TEXTURE_BOX, position, rotation, scale);
-}
-
-void createSpotlight(const std::string &name, Engine &engine) {
-  glm::vec3 position(3.0f, 3.0f, 0.0f);
-  glm::vec3 direction(-1.0f, -1.0f, 0.0f);
-  glm::vec3 color(1.0f);
-
-  float intensity = 1.5f;
-  float cutOff = glm::cos(glm::radians(15.0f));
-  float outerCutOff = glm::cos(glm::radians(25.0f));
-
-  engine.createLightEntity(name, position, direction, color, LightType::Spot, intensity, cutOff, outerCutOff);
+  engine.createModelEntity(name, EngineConfig::MODEL_BACKPACK, position, rotation, scale);
 }
 
 void createDirectionalLight(const std::string &name, Engine &engine) {
@@ -52,17 +34,10 @@ void createDirectionalLight(const std::string &name, Engine &engine) {
   glm::vec3 color(1.0f);
   float intensity = 1.5f;
 
-  float cutOff = 0.0f;
-  float outerCutOff = 0.0f;
-
-  engine.createLightEntity(name, position, direction, color, LightType::Directional, intensity, cutOff, outerCutOff);
+  engine.createLightEntity(name, position, direction, color, LightType::Directional, intensity, 0.0f, 0.0f);
 }
 
 void createCamera(Engine &engine) {
   glm::vec3 position(0.0f, 3.0f, 8.0f);
-  float yaw = 0.0f;
-  float pitch = -15.0f;
-  float fov = 90.0f;
-
-  engine.createCameraEntity(position, yaw, pitch, fov);
+  engine.createCameraEntity(position, 0.0f, -15.0f, 90.0f);
 }

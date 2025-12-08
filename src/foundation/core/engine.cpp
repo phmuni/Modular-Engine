@@ -5,32 +5,37 @@
 #include "systems/inputSystem.h"
 #include "systems/lightSystem.h"
 #include "systems/renderSystem.h"
+#include "systems/resourceSystem.h"
 #include "systems/sceneSystem.h"
-#include "systems/shaderSystem.h"
 #include "systems/timeSystem.h"
 #include "systems/transformSystem.h"
 #include "systems/uiSystem.h"
 #include "systems/windowSystem.h"
 
+#include <SDL3/SDL.h>
+
+Engine::Engine()
+    : m_screenWidth(EngineConfig::DEFAULT_SCREEN_WIDTH), m_screenHeight(EngineConfig::DEFAULT_SCREEN_HEIGHT) {}
+
 Engine::~Engine() { SDL_Quit(); }
 
 bool Engine::init() {
-
   registerSystems();
 
   if (!loadResources()) {
-    SDL_Log("Failed to load resources.");
+    SDL_Log("Failed to load resources");
     return false;
   }
 
   return true;
 }
 
+// Register all systems in dependency order
 void Engine::registerSystems() {
   systemManager.insert<WindowSystem>(m_screenWidth, m_screenHeight);
   systemManager.insert<InputSystem>();
   systemManager.insert<TimeSystem>();
-  systemManager.insert<ShaderSystem>();
+  systemManager.insert<ResourceSystem>();
   systemManager.insert<RenderSystem>();
   systemManager.insert<TransformSystem>();
   systemManager.insert<CameraSystem>(componentManager, systemManager.getSystem<InputSystem>());
@@ -40,22 +45,25 @@ void Engine::registerSystems() {
                                  systemManager.getSystem<WindowSystem>().getContext());
 }
 
-bool Engine::loadShader(const std::string &name, const std::string &vertexPath, const std::string &fragmentPath) {
-  auto &shaderSystem = systemManager.getSystem<ShaderSystem>();
-  if (!shaderSystem.loadShader(name.c_str(), vertexPath.c_str(), fragmentPath.c_str())) {
-    SDL_Log("Failed to load shader '%s'!", name.c_str());
-    return false;
-  }
-  return true;
-}
-
+// Load shaders and initialize renderer
 bool Engine::loadResources() {
   auto &renderer = systemManager.getSystem<RenderSystem>().getRenderer();
   auto &windowSystem = systemManager.getSystem<WindowSystem>();
+  auto &resourceSystem = systemManager.getSystem<ResourceSystem>();
+
   renderer.init(windowSystem.getWindow());
 
-  return loadShader("base", EngineConfig::SHADER_VERTEX, EngineConfig::SHADER_FRAGMENT) &&
-         loadShader("shadow", EngineConfig::SHADER_VERTEX_SHADOW, EngineConfig::SHADER_FRAGMENT_SHADOW);
+  // Load base and shadow shaders
+  uint32_t baseShader = resourceSystem.loadShader(EngineConfig::SHADER_VERTEX, EngineConfig::SHADER_FRAGMENT);
+  uint32_t shadowShader =
+      resourceSystem.loadShader(EngineConfig::SHADER_VERTEX_SHADOW, EngineConfig::SHADER_FRAGMENT_SHADOW);
+
+  if (baseShader == 0 && shadowShader == 1) {
+    return true;
+  }
+
+  SDL_Log("Failed to load shaders");
+  return false;
 }
 
 void Engine::run() {
@@ -70,17 +78,18 @@ void Engine::loop(bool &running) {
   }
 }
 
+// Update all game logic systems
 void Engine::update(bool &running) {
   auto &inputSystem = systemManager.getSystem<InputSystem>();
   auto &timeSystem = systemManager.getSystem<TimeSystem>();
   auto &cameraSystem = systemManager.getSystem<CameraSystem>();
-  auto &windowSystem = systemManager.getSystem<WindowSystem>();
 
   inputSystem.update(&running, systemManager);
   timeSystem.update();
   cameraSystem.update(timeSystem.getDeltaTime(), systemManager);
 }
 
+// Render frame: scene + UI
 void Engine::render() {
   auto &renderSystem = systemManager.getSystem<RenderSystem>();
   auto &renderer = renderSystem.getRenderer();
@@ -98,15 +107,17 @@ void Engine::render() {
   renderer.endFrame();
 }
 
+// High-level entity creation (delegates to SceneSystem)
+
 void Engine::createCameraEntity(glm::vec3 position, float yaw, float pitch, float fov) {
   auto &sceneSystem = systemManager.getSystem<SceneSystem>();
   sceneSystem.createCameraEntity(position, yaw, pitch, fov);
 }
 
-void Engine::createModelEntity(const std::string &name, const std::string &modelPath, const std::string &texturePath,
-                               glm::vec3 position, glm::vec3 rotation, glm::vec3 scale) {
+void Engine::createModelEntity(const std::string &name, const std::string &modelPath, glm::vec3 position,
+                               glm::vec3 rotation, glm::vec3 scale) {
   auto &sceneSystem = systemManager.getSystem<SceneSystem>();
-  sceneSystem.createModelEntity(name, modelPath, texturePath, position, rotation, scale);
+  sceneSystem.createModelEntity(name, modelPath, position, rotation, scale);
 }
 
 void Engine::createLightEntity(const std::string &name, glm::vec3 position, glm::vec3 direction, glm::vec3 color,

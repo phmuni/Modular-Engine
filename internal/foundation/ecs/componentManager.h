@@ -11,18 +11,19 @@ public:
   virtual ~BaseComponent() = default;
 };
 
+// Manages all components across all entities (ECS pattern)
+// Storage: component_type -> (entity_id -> component_data)
 class ComponentManager {
 private:
-  // Stores: component type → (entity → component)
   std::unordered_map<std::type_index, std::unordered_map<Entity, std::unique_ptr<BaseComponent>>> m_storage;
 
 public:
-  // Insert a component for an entity
+  // Add component to entity
   template <typename T> void insert(Entity entity, std::unique_ptr<T> component) {
     m_storage[std::type_index(typeid(T))][entity] = std::move(component);
   }
 
-  // Get a component (throws if missing)
+  // Get component (throws if not found)
   template <typename T> T &get(Entity entity) {
     auto &map = m_storage.at(std::type_index(typeid(T)));
     auto it = map.find(entity);
@@ -32,7 +33,7 @@ public:
     return *static_cast<T *>(it->second.get());
   }
 
-  // Try to get a component (returns nullptr if missing)
+  // Get component (returns nullptr if not found)
   template <typename T> T *tryGet(Entity entity) {
     auto it = m_storage.find(std::type_index(typeid(T)));
     if (it == m_storage.end())
@@ -45,7 +46,7 @@ public:
     return static_cast<T *>(cit->second.get());
   }
 
-  // Check if an entity has a component
+  // Check if entity has component type
   template <typename T> bool has(Entity entity) {
     auto it = m_storage.find(std::type_index(typeid(T)));
     if (it == m_storage.end())
@@ -53,22 +54,20 @@ public:
     return it->second.find(entity) != it->second.end();
   }
 
-  // Get any entity that has this component type (returns -1 if none)
+  // Find first entity with component type (returns -1 if none)
   template <typename T> Entity findEntityWith() {
     auto it = m_storage.find(std::type_index(typeid(T)));
-    if (it == m_storage.end())
-      return -1;
-    if (it->second.empty())
+    if (it == m_storage.end() || it->second.empty())
       return -1;
     return it->second.begin()->first;
   }
 
-  // Remove all components for an entity
+  // Remove all components from entity
   void removeAll(Entity entity) {
     for (auto &[_, map] : m_storage)
       map.erase(entity);
   }
 
-  // Remove a specific component type from an entity
+  // Remove specific component type from entity
   template <typename T> void remove(Entity entity) { m_storage[std::type_index(typeid(T))].erase(entity); }
 };

@@ -4,11 +4,11 @@
 #include "components/modelComponent.h"
 #include "components/nameComponent.h"
 #include "components/transformComponent.h"
-#include "rendering/resources/material.h"
 #include "rendering/resources/mesh.h"
 #include "systems/cameraSystem.h"
 #include "systems/lightSystem.h"
 #include "systems/renderSystem.h"
+#include "systems/resourceSystem.h"
 #include <memory>
 #include <utility>
 
@@ -45,27 +45,22 @@ void SceneSystem::createCameraEntity(glm::vec3 position, float yaw, float pitch,
   cameraSystem.setActiveCamera(newCamera);
 }
 
-void SceneSystem::createModelEntity(const std::string name, const std::string &modelPath,
-                                    const std::string &texturePath, glm::vec3 position, glm::vec3 rotation,
-                                    glm::vec3 scale) {
+void SceneSystem::createModelEntity(const std::string name, const std::string &modelPath, glm::vec3 position,
+                                    glm::vec3 rotation, glm::vec3 scale) {
   Entity entity = entityManager.createEntity();
 
-  auto material = std::make_unique<Material>(texturePath, 32.0f);
-  if (!material) {
-    SDL_Log("Failed to load material from: %s", texturePath.c_str());
-    return;
-  }
+  auto &resourceSystem = systemManager.getSystem<ResourceSystem>();
 
-  auto mesh = std::make_unique<Mesh>(modelPath);
-  if (!mesh) {
-    SDL_Log("Failed to load mesh from: %s", modelPath.c_str());
-    return;
-  }
+  uint32_t meshHandle = resourceSystem.loadMesh(modelPath);
+  Mesh &mesh = resourceSystem.getMesh(meshHandle);
+
+  size_t submeshCount = mesh.getSubmeshes().size();
+  std::vector<uint32_t> materialHandles(submeshCount, 0); // all start with default material
 
   componentManager.insert<NameComponent>(entity, std::make_unique<NameComponent>(name));
   componentManager.insert<TransformComponent>(entity, std::make_unique<TransformComponent>(position, rotation, scale));
   componentManager.insert<ModelComponent>(entity,
-                                          std::make_unique<ModelComponent>(std::move(mesh), std::move(material)));
+                                          std::make_unique<ModelComponent>(meshHandle, std::move(materialHandles)));
 
   systemManager.getSystem<RenderSystem>().insertRenderable(entity);
 }

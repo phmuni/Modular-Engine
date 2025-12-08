@@ -1,15 +1,20 @@
 #include "systems/lightSystem.h"
 #include "components/lightComponent.h"
+#include "foundation/ecs/componentManager.h"
+#include "rendering/resources/shader.h"
 #include <algorithm>
 
-void LightSystem::createLight(Entity entity) { m_lights.emplace_back(entity); }
+
+void LightSystem::createLight(Entity entity) { m_lights.push_back(entity); }
 
 void LightSystem::destroyLight(Entity entity) {
   auto it = std::remove(m_lights.begin(), m_lights.end(), entity);
   m_lights.erase(it, m_lights.end());
 }
+
 const std::vector<Entity> &LightSystem::getLights() const { return m_lights; }
 
+// Upload all light properties to shader uniform array
 void LightSystem::uploadLightsToShader(Shader &shader, ComponentManager &componentManager) {
   int index = 0;
 

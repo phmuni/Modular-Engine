@@ -1,50 +1,49 @@
 #pragma once
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-#include <iostream> // IWYU pragma: keep
 #include <string>
 #include <vector>
 
 struct Vertex {
-  glm::vec3 position; // vertex position
-  glm::vec3 normal;   // vertex normal
-  glm::vec2 texCoord; // texture coordinate
+  glm::vec3 position;
+  glm::vec3 normal;
+  glm::vec2 texCoord;
 };
-// struct Submesh {
-//   uint32_t indexStart;
-//   uint32_t indexCount;
-// };
+
+struct Submesh {
+  uint32_t indexStart;
+  uint32_t indexCount;
+};
 
 class Mesh {
 private:
-  GLuint m_VAO, m_VBO, m_EBO;
+  GLuint m_VAO = 0;
+  GLuint m_VBO = 0;
+  GLuint m_EBO = 0;
+
   std::vector<Vertex> m_vertices;
   std::vector<uint32_t> m_indices;
-  // std::vector<Submesh> m_submeshes;
+  std::vector<Submesh> m_submeshes;
 
-  // initialize VAO/VBO/EBO
   void setupBuffers();
-
-  // load mesh data from OBJ file
   bool loadOBJ(const std::string &filename);
 
 public:
-  Mesh() {}
-
-  // load mesh directly from OBJ file
-  Mesh(const std::string &filename);
-
-  // create mesh from given vertices and indices
-  Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices);
-
+  Mesh() = default;
+  explicit Mesh(const std::string &filename);
+  Mesh(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices,
+       const std::vector<Submesh> &submeshes);
   ~Mesh();
 
-  // return VAO handle
-  GLuint getVAO() const;
+  // Prevent copy, allow move
+  Mesh(const Mesh &) = delete;
+  Mesh &operator=(const Mesh &) = delete;
+  Mesh(Mesh &&) = default;
+  Mesh &operator=(Mesh &&) = default;
 
-  // return number of indices
-  size_t getIndexCount() const;
-  // std::vector<Submesh> &getSubmeshes();
-  // replace vertices and indices
-  void setVerticesIndices(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices);
+  GLuint getVAO() const;
+  const std::vector<Submesh> &getSubmeshes() const;
+
+  void setVerticesIndices(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices,
+                          const std::vector<Submesh> &submeshes);
 };

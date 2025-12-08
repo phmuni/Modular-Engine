@@ -9,18 +9,20 @@ public:
   virtual ~BaseSystem() = default;
 };
 
+// Manages all systems in ECS (registration and retrieval)
 class SystemManager {
 private:
-  // Stores: system type → system instance
   std::unordered_map<std::type_index, std::unique_ptr<BaseSystem>> m_systems;
 
 public:
-  // Register a system of type T
+  // Register system of type T with constructor args
   template <typename T, typename... Args> void insert(Args &&...args);
 
-  // Get a system of type T (throws if not found)
+  // Get system of type T (throws if not found)
   template <typename T> T &getSystem() const;
 };
+
+// Template implementations
 
 template <typename T, typename... Args> void SystemManager::insert(Args &&...args) {
   std::type_index typeId(typeid(T));

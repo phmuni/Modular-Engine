@@ -1,44 +1,40 @@
 #pragma once
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <string>
 
 class Shader {
 private:
-  GLuint shaderID;
+  GLuint m_shaderID = 0;
 
-  // read shader source file
   std::string readShaderFile(const char *filename) const;
-
-  // compile a single shader (vertex/fragment)
   GLuint compileShader(GLenum type, const char *filename);
-
-  // link vertex + fragment into a shader program
-  GLuint createShaderProgram(const char *vertexShaderFile, const char *fragmentShaderFile);
+  GLuint createShaderProgram(const char *vertexFile, const char *fragmentFile);
 
 public:
-  Shader() : shaderID(0) {}
+  Shader() = default;
+  Shader(const char *vertexFile, const char *fragmentFile);
+  ~Shader() {
+    if (m_shaderID)
+      glDeleteProgram(m_shaderID);
+  }
 
-  // build shader directly from files
-  Shader(const char *vertexShaderFile, const char *fragmentShaderFile);
+  // Prevent copy, allow move
+  Shader(const Shader &) = delete;
+  Shader &operator=(const Shader &) = delete;
+  Shader(Shader &&) = default;
+  Shader &operator=(Shader &&) = default;
 
-  // load and compile shaders
-  bool load(const char *vertexShaderFile, const char *fragmentShaderFile);
-
-  // activate shader program
+  bool load(const char *vertexFile, const char *fragmentFile);
   void use() const;
 
-  // set uniform textures
+  // Uniforms
   void setTex(const char *name, GLuint textureID, int textureUnit) const;
-
-  // set uniform values
   void setInt(const char *name, int value) const;
   void setFloat(const char *name, float value) const;
   void setVec3(const char *name, glm::vec3 value) const;
   void setMat3(const char *name, glm::mat3 value) const;
   void setMat4(const char *name, glm::mat4 value) const;
 
-  // return shader program ID
   GLuint getShaderID() const;
 };
